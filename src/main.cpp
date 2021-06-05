@@ -1,16 +1,14 @@
 #include <iostream>
-#include "Matrix.cpp"
+#include "Matrix.h"
 
 using namespace std;
 
 int main()
 {
-    Matrix<double> a(5, 5);
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            a[i][j] = i * j;
-        }
-    }
+    vector<vector<int>> v = {
+        {1, 2, 3, 4},
+        {5, 6, 7, 8}};
+    Matrix<int> a(v);
     a.printMatrix();
     return 0;
 }
