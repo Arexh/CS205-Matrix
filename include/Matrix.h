@@ -18,32 +18,33 @@ public:
     explicit Matrix() :Matrix(0, 0) {};
     Matrix(int row, int col);
     Matrix(vector<vector<T>> arr);
-    Matrix(const Matrix &a);
-    Matrix<T> operator=(Matrix &m1); //深拷贝
-    bool operator==(Matrix &m1);     //矩阵相同时true
-    bool operator!=(Matrix &m1);     //矩阵不相同时true
+    Matrix(const Matrix& a);
+    Matrix<T> operator=(Matrix& m1); //深拷贝
+    bool operator==(Matrix& m1);     //矩阵相同时true
+    bool operator!=(Matrix& m1);     //矩阵不相同时true
     bool is_size_equal(const Matrix& m1);
-    Matrix<T> operator+(Matrix &m1);
-    Matrix<T> operator-(Matrix &m1);
-    Matrix<T> operator*(Matrix &m1);
+    Matrix<T> operator+(Matrix& m1);
+    Matrix<T> operator-(Matrix& m1);
+    Matrix<T> operator*(Matrix& m1);
     Matrix<T> operator*(int a);
     Matrix<T> operator/(double a);
 
-    Matrix<T> operator+=(Matrix &m1);
-    Matrix<T> operator-=(Matrix &m1);
-    Matrix<T> operator*=(Matrix &m1);
+    Matrix<T> operator+=(Matrix& m1);
+    Matrix<T> operator-=(Matrix& m1);
+    Matrix<T> operator*=(Matrix& m1);
     Matrix<T> operator*=(int a);
     Matrix<T> operator/=(int a);
-    Matrix<T> operator^(Matrix &m1); //矩阵按位置相乘
+    Matrix<T> operator^(Matrix& m1); //矩阵按位置相乘
     Matrix<T> operator~();           //取共轭矩阵
 
-    Matrix<T> dot(Matrix &m1);   //未实现
-    Matrix<T> cross(Matrix &m1); //未实现
+    Matrix<T> dot(Matrix& m1);   
+    Matrix<T> cross(Matrix& m1); 
     Matrix<T> Transposition();
     Matrix<T> toTransposition();
 
+    bool is_square();
     T determinant();
-    T all_sort(int a[], int now, int length, T &determinant);
+    T all_sort(int a[], int now, int length, T& determinant);
 
     T trace();
     Matrix<T> LU_factor_U();
@@ -51,6 +52,9 @@ public:
     Matrix<T> LDU_factor_L();
     Matrix<T> LDU_factor_D();
     Matrix<T> LDU_factor_U();
+
+    Matrix<T> Inverse();
+
 
     T sum(int row = 0, int col = 0);
     T mean(int row = 0, int col = 0);
@@ -103,7 +107,7 @@ Matrix<T>::Matrix(vector<vector<T>> arr)
 }
 
 template <class T>
-Matrix<T>::Matrix(const Matrix &a)
+Matrix<T>::Matrix(const Matrix& a)
 {
     this->m_row = a.m_row;
     this->m_col = a.m_col;
@@ -130,7 +134,7 @@ void Matrix<T>::printMatrix()
     {
         for (int j = 0; j < m_col; j++)
         {
-            cout << std::setw(7) << (*this)[i][j] << " ";
+            cout << setprecision(2) << std::setw(7) << (*this)[i][j] << " ";
         }
         printf("\n");
     }
@@ -138,7 +142,7 @@ void Matrix<T>::printMatrix()
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator=(Matrix &m1)
+Matrix<T> Matrix<T>::operator=(Matrix& m1)
 {
     this->clear();
     this->resize(m1.m_row);
@@ -162,7 +166,7 @@ Matrix<T> Matrix<T>::operator=(Matrix &m1)
 }
 
 template <class T>
-bool Matrix<T>::operator==(Matrix &m1)
+bool Matrix<T>::operator==(Matrix& m1)
 {
     int i = 0, j = 0;
     bool isSame = true;
@@ -191,7 +195,7 @@ bool Matrix<T>::operator==(Matrix &m1)
 }
 
 template <class T>
-bool Matrix<T>::operator!=(Matrix &m1)
+bool Matrix<T>::operator!=(Matrix& m1)
 {
     int i = 0, j = 0;
     bool isSame = false;
@@ -224,7 +228,7 @@ bool Matrix<T>::is_size_equal(const Matrix& m1) {
 
 
 template <class T>
-Matrix<T> Matrix<T>::operator+(Matrix &m1)
+Matrix<T> Matrix<T>::operator+(Matrix& m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
@@ -240,9 +244,9 @@ Matrix<T> Matrix<T>::operator+(Matrix &m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator-(Matrix &m1)
+Matrix<T> Matrix<T>::operator-(Matrix& m1)
 {
-    assert(is_size_equal(m1)&&!this->empty());
+    assert(is_size_equal(m1) && !this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
     int i, j;
     for (i = 0; i < m_row; i++)
@@ -256,7 +260,7 @@ Matrix<T> Matrix<T>::operator-(Matrix &m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator*(Matrix &m1)
+Matrix<T> Matrix<T>::operator*(Matrix& m1)
 {
     assert(this->m_col == m1.m_row && !this->empty());
     Matrix<T> tmp(this->m_row, m1.m_col);
@@ -307,7 +311,7 @@ Matrix<T> Matrix<T>::operator/(double a)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator+=(Matrix &m1)
+Matrix<T> Matrix<T>::operator+=(Matrix& m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     for (int i = 0; i < this->m_row; i++)
@@ -321,7 +325,7 @@ Matrix<T> Matrix<T>::operator+=(Matrix &m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator-=(Matrix &m1)
+Matrix<T> Matrix<T>::operator-=(Matrix& m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     for (int i = 0; i < this->m_row; i++)
@@ -335,7 +339,7 @@ Matrix<T> Matrix<T>::operator-=(Matrix &m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator*=(Matrix &m1)
+Matrix<T> Matrix<T>::operator*=(Matrix& m1)
 {
     assert(this->m_col == m1.m_row && !this->empty());
     Matrix<T> tmp(*this);
@@ -390,7 +394,7 @@ Matrix<T> Matrix<T>::operator/=(int a)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator^(Matrix<T> &m1)
+Matrix<T> Matrix<T>::operator^(Matrix<T>& m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     int i, j;
@@ -424,15 +428,15 @@ Matrix<T> Matrix<T>::operator~()
 // }
 
 template <class T>
-Matrix<T> Matrix<T>::dot(Matrix<T> &m1)
+Matrix<T> Matrix<T>::dot(Matrix<T>& m1)
 {
-    return (*this)^m1;
+    return (*this) ^ m1;
 }
 
 template <class T>
 Matrix<T> Matrix<T>::cross(Matrix<T>& m1)
 {
-    return (*this)*m1;
+    return (*this) * m1;
 }
 
 template <class T>
@@ -476,6 +480,13 @@ Matrix<T> Matrix<T>::toTransposition()
     return (*this);
 }
 
+template<class T>
+bool Matrix<T>::is_square()
+{
+    if (this->m_row == this->m_col) return true;
+    else return false;
+}
+
 template <class T>
 T Matrix<T>::determinant()
 {
@@ -483,7 +494,7 @@ T Matrix<T>::determinant()
     int length = m_col, now = 0;
     T d;
     d = 0;
-    int *permutation = new int[length];
+    int* permutation = new int[length];
     //初始化全排列数组
     for (int i = 0; i < length; i++)
     {
@@ -497,7 +508,7 @@ T Matrix<T>::determinant()
 }
 
 template <class T>
-T Matrix<T>::all_sort(int a[], int now, int length, T &determinant)
+T Matrix<T>::all_sort(int a[], int now, int length, T& determinant)
 {
     if (now == length - 1)
     {
@@ -524,9 +535,13 @@ T Matrix<T>::all_sort(int a[], int now, int length, T &determinant)
     }
     for (int i = now; i < length; i++)
     {
-        swap(a[now], a[i]);
+        int tmp = a[now];
+        a[now] = a[i];
+        a[i] = tmp;
         all_sort(a, now + 1, length, determinant);
-        swap(a[now], a[i]);
+        tmp = a[now];
+        a[now] = a[i];
+        a[i] = tmp;
     }
     return determinant;
 }
@@ -661,6 +676,34 @@ Matrix<T> Matrix<T>::LDU_factor_U()
     }
     return u;
 }
+
+template<class T>
+Matrix<T> Matrix<T>::Inverse() {
+    T deter = this->determinant();
+    assert(this->m_row==this->m_col);
+    //assert(deter!=0);
+        int i, j, k, m,tt=this->m_row, n = tt - 1;
+        Matrix<T> tmp(n, n);
+        Matrix<T> inverse(tt, tt);
+        for (i = 0; i < tt; i++)
+        {
+
+            for (j = 0; j < tt; j++)
+            {
+                for (k = 0; k < n; k++)
+                    for (m = 0; m < n; m++)
+                        tmp[k][m] = (*this)[k >= i ? k + 1 : k][m >= j ? m + 1 : m];
+
+                T a = tmp.determinant();
+                if ((i + j) % 2 == 1) { a = -a; };
+                inverse[j][i] = a/this->determinant() ;
+            }
+        }
+        return inverse;
+    
+        
+}
+
 
 template <class T>
 T Matrix<T>::sum(int row, int col)
