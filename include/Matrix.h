@@ -15,12 +15,14 @@ class Matrix : public std::vector<std::vector<T>>
 public:
     int m_row;
     int m_col;
+    explicit Matrix() :Matrix(0, 0) {};
     Matrix(int row, int col);
     Matrix(vector<vector<T>> arr);
     Matrix(const Matrix &a);
     Matrix<T> operator=(Matrix &m1); //深拷贝
     bool operator==(Matrix &m1);     //矩阵相同时true
     bool operator!=(Matrix &m1);     //矩阵不相同时true
+    bool is_size_equal(const Matrix& m1);
     Matrix<T> operator+(Matrix &m1);
     Matrix<T> operator-(Matrix &m1);
     Matrix<T> operator*(Matrix &m1);
@@ -61,13 +63,20 @@ public:
 template <typename T>
 Matrix<T>::Matrix(int row, int col)
 {
-    this->m_row = row;
-    this->m_col = col;
-    this->resize(row);
-    typename std::vector<std::vector<T>>::iterator iter;
-    for (iter = this->begin(); iter < this->end(); iter++)
-    {
-        iter->resize(col);
+    if (row <= 0 || col <= 0) {
+        cout << "You input negative row/col num" << endl;
+        this->m_row = 0;
+        this->m_col = 0;
+    }
+    else {
+        this->m_row = row;
+        this->m_col = col;
+        this->resize(row);
+        typename std::vector<std::vector<T>>::iterator iter;
+        for (iter = this->begin(); iter < this->end(); iter++)
+        {
+            iter->resize(col);
+        }
     }
 }
 
@@ -208,8 +217,16 @@ bool Matrix<T>::operator!=(Matrix &m1)
 }
 
 template <class T>
+bool Matrix<T>::is_size_equal(const Matrix& m1) {
+    if (this->m_row == m1.m_row && this->m_col == m1.m_col) return true;
+    else return false;
+}
+
+
+template <class T>
 Matrix<T> Matrix<T>::operator+(Matrix &m1)
 {
+    assert(is_size_equal(m1) && !this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
     int i, j;
     for (i = 0; i < m_row; i++)
@@ -225,6 +242,7 @@ Matrix<T> Matrix<T>::operator+(Matrix &m1)
 template <class T>
 Matrix<T> Matrix<T>::operator-(Matrix &m1)
 {
+    assert(is_size_equal(m1)&&!this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
     int i, j;
     for (i = 0; i < m_row; i++)
@@ -240,6 +258,7 @@ Matrix<T> Matrix<T>::operator-(Matrix &m1)
 template <class T>
 Matrix<T> Matrix<T>::operator*(Matrix &m1)
 {
+    assert(this->m_col == m1.m_row && !this->empty());
     Matrix<T> tmp(this->m_row, m1.m_col);
     int i, j, k;
     for (i = 0; i < tmp.m_row; i++)
@@ -258,6 +277,7 @@ Matrix<T> Matrix<T>::operator*(Matrix &m1)
 template <class T>
 Matrix<T> Matrix<T>::operator*(int a)
 {
+    assert(!this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
     int i, j;
     for (i = 0; i < this->m_row; i++)
@@ -273,6 +293,7 @@ Matrix<T> Matrix<T>::operator*(int a)
 template <class T>
 Matrix<T> Matrix<T>::operator/(double a)
 {
+    assert(!this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
     int i, j;
     for (i = 0; i < this->m_row; i++)
@@ -288,6 +309,7 @@ Matrix<T> Matrix<T>::operator/(double a)
 template <class T>
 Matrix<T> Matrix<T>::operator+=(Matrix &m1)
 {
+    assert(is_size_equal(m1) && !this->empty());
     for (int i = 0; i < this->m_row; i++)
     {
         for (int j = 0; j < this->m_col; j++)
@@ -301,6 +323,7 @@ Matrix<T> Matrix<T>::operator+=(Matrix &m1)
 template <class T>
 Matrix<T> Matrix<T>::operator-=(Matrix &m1)
 {
+    assert(is_size_equal(m1) && !this->empty());
     for (int i = 0; i < this->m_row; i++)
     {
         for (int j = 0; j < this->m_col; j++)
@@ -314,8 +337,7 @@ Matrix<T> Matrix<T>::operator-=(Matrix &m1)
 template <class T>
 Matrix<T> Matrix<T>::operator*=(Matrix &m1)
 {
-    //this->clear();
-    //this->resize(m_row);
+    assert(this->m_col == m1.m_row && !this->empty());
     Matrix<T> tmp(*this);
     this->clear();
     this->resize(m_row);
@@ -341,6 +363,7 @@ Matrix<T> Matrix<T>::operator*=(Matrix &m1)
 template <class T>
 Matrix<T> Matrix<T>::operator*=(int a)
 {
+    assert(!this->empty());
     int i, j;
     for (i = 0; i < this->m_row; i++)
     {
@@ -369,6 +392,7 @@ Matrix<T> Matrix<T>::operator/=(int a)
 template <class T>
 Matrix<T> Matrix<T>::operator^(Matrix<T> &m1)
 {
+    assert(is_size_equal(m1) && !this->empty());
     int i, j;
     for (i = 0; i < this->m_row; i++)
     {
@@ -383,13 +407,14 @@ Matrix<T> Matrix<T>::operator^(Matrix<T> &m1)
 template <class T>
 Matrix<T> Matrix<T>::operator~()
 {
+    assert(!this->empty());
     return (*this);
 }
-
-// template< >
-// Matrix<std::complex> Matrix<st>::operator ~() {
+//template< >
+// template<class T >
+// Matrix<complex<T>> Matrix<complex<T>>::operator ~() {
 //     int i, j;
-//     Matrix<Complex> tmp(*this);
+//     Matrix<Complex<T>> tmp(*this);
 //     for (i = 0; i < tmp.m_row; i++) {
 //         for (j = 0; j < tmp.m_col; j++) {
 //             tmp[i][j] = ~tmp[i][j];
@@ -401,16 +426,13 @@ Matrix<T> Matrix<T>::operator~()
 template <class T>
 Matrix<T> Matrix<T>::dot(Matrix<T> &m1)
 {
-    int i, j;
-    Matrix<T> tmp(*this);
-    for (i = 0; i < tmp.m_row; i++)
-    {
-        for (j = 0; j < tmp.m_col; j++)
-        {
-            tmp[i][j] *= m1[i][j];
-        }
-    }
-    return tmp;
+    return (*this)^m1;
+}
+
+template <class T>
+Matrix<T> Matrix<T>::cross(Matrix<T>& m1)
+{
+    return (*this)*m1;
 }
 
 template <class T>
