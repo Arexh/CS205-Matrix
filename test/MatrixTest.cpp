@@ -4,7 +4,7 @@
 
 using namespace std;
 
-TEST(MatrixTest, TestMatrixAdd)
+TEST(MatrixTest, MatrixAdd)
 {
     Matrix<int> a({{1, 2, 3, 4},
                    {5, 6, 7, 8}});
@@ -33,7 +33,7 @@ TEST(MatrixTest, TestMatrixAdd)
     }
 }
 
-TEST(MatrixTest, TestMatrixMinus)
+TEST(MatrixTest, MatrixMinus)
 {
     Matrix<int> a({ {1, 2, 3, 4},
                    {5, 6, 7, 8} });
@@ -48,28 +48,28 @@ TEST(MatrixTest, TestMatrixMinus)
         }
     }
 
-    Matrix<complex<double>> aa({ { (1.0 + 2i), (3.0 + 4i),(5.0 + 6i), (7.0 + 8i)},
-                           { (8.0 + 7i), (6.0 + 5i),(4.0 + 3i), (2.0 + 1i)} });
-    Matrix<complex<double>> bb({ { (8.0 + 7i), (10.0 + 9i),(12.0 + 11i), (14.0 + 13i)},
-                            { (15.0 + 12i), (13.0 + 10i),(11.0 + 8i), (9.0 + 6i)} });
+    Matrix<complex<double>> aa({ { (1.0 + 2i), (3.0 + 4i)},
+                           { (5.0 + 6i), (7.0 + 8i)} });
+    Matrix<complex<double>> bb({ { (2.0 + 3i), (4.0 + 5i)},
+                            { (6.0 + 7i), (8.0 + 9i)} });
     Matrix<complex<double>> cc = aa - bb;
     for (int i = 0; i < cc.m_row; i++)
     {
         for (int j = 0; j < cc.m_row; j++)
         {
-            ASSERT_EQ(cc[i][j], (aa-bb)[i][j]);
+            ASSERT_EQ(-1.0-1i, (aa-bb)[i][j]);
         }
     }
 }
 
 TEST(MatrixTest, TestMatrixMultiply)
 {
-    Matrix<int> a({{ 1,2 },
-                    { 3,4 }});
-    Matrix<int> b({ { 4,3 },
-                    { 2,1 } });
-    Matrix<int> c({ {8,5},
-                    {20,13} });
+    Matrix<int> a({{ 1,1 },
+                    { 2,2 }});
+    Matrix<int> b({ { -2,-2 },
+                    { 1,1 } });
+    Matrix<int> c({ {-1,-1},
+                    {-2,-2} });
     for (int i = 0; i < c.m_row; i++)
     {
         for (int j = 0; j < c.m_row; j++)
@@ -78,54 +78,67 @@ TEST(MatrixTest, TestMatrixMultiply)
         }
     }
 
-    Matrix<complex<int>> aa({ { complex<int>(1,2),complex<int>(3,4) },
-                            { complex<int>(5,6),complex<int>(7,8) } });
-    Matrix<complex<int>> bb({ { complex<int>(9,10),complex<int>(11,12) },
-                            { complex<int>(13,14),complex<int>(15,16) } });
+    Matrix<complex<int>> aa({ { complex<int>(1,1),complex<int>(1,1) },
+                            { complex<int>(2,2),complex<int>(2,2) } });
+    Matrix<complex<int>> bb({ { complex<int>(-2,-2),complex<int>(-2,-2) },
+                            { complex<int>(1,1),complex<int>(1,1) } });
     (aa * bb).printMatrix();
-    Matrix<complex<int>> cc({ { complex<int>(-28,122),complex<int>(-32,142) },
-                            { complex<int>(-36,306),complex<int>(-40,358) } });
-    for (int i = 0; i < cc.m_row; i++)
+    Matrix<complex<int>> mul({ { complex<int>(0,-2),complex<int>(0,-2) },
+                            { complex<int>(0,-4),complex<int>(0,-4) } });
+    for (int i = 0; i < mul.m_row; i++)
     {
-        for (int j = 0; j < cc.m_row; j++)
+        for (int j = 0; j < mul.m_row; j++)
         {
-            ASSERT_EQ(cc[i][j], (aa * bb)[i][j]);
+            ASSERT_EQ(mul[i][j], (aa * bb)[i][j]);
         }
     }
 }
 
 TEST(MatrixTest, DefautConstructorTest)
-{   //Êó†ÂèÇÊï∞
+{   //Œﬁ≤Œ ˝
     Matrix<int> a;
     a.printMatrix();
     Matrix<complex<double>> *b = new Matrix<complex<double>>;
     b->printMatrix();
     delete b;
-    //ÊúâÂèÇÊï∞
+    //”–≤Œ ˝
     Matrix<double> c(3, 3);
     c.printMatrix();
     Matrix<complex<int>> d(5, 5);
     d.printMatrix();
+    Matrix<complex<double>>* e = new Matrix<complex<double>>(4,4);
+    e->printMatrix();
+    delete e;
 }
 
 TEST(MatrixTest, CopyConstructorTest)
 {   
+    int i, j;
     Matrix<int> a({ {1, 2, 3, 4},
                    {5, 6, 7, 8} });
     Matrix<int> aa(a);
-    aa.printMatrix();
+    for (i = 0; i < a.m_row; i++)
+        for (j = 0; j < a.m_col; j++)
+            ASSERT_EQ(aa[i][j], a[i][j]);
 
+    ASSERT_NE(&a, &aa);
+    //////////////////
     Matrix<complex<double>> b({ { (1.0 + 2i), (3.0 + 4i),(5.0 + 6i), (7.0 + 8i)},
                            { (8.0 + 7i), (6.0 + 5i),(4.0 + 3i), (2.0 + 1i)} });
     Matrix<complex<double>> bb(b);
-    bb.printMatrix();
+    for (i = 0; i < b.m_row; i++)
+        for (j = 0; j < b.m_col; j++)
+            ASSERT_EQ(bb[i][j], b[i][j]);
 
+    ASSERT_NE(&b, &bb);
+    /////////////////
     Matrix<complex<int>> c({ {complex<int>(1,2),complex<int>(3,4)},
                         {complex<int>(5,6),complex<int>(7,8)} });
     Matrix<complex<int>> cc(c);
-    //Âà§Êñ≠ÊòØÂê¶‰∏∫Ê∑±Êã∑Ë¥ù
-    ASSERT_NE(&a, &aa);
-    ASSERT_NE(&b, &bb);
+    for (i = 0; i < c.m_row; i++)
+        for (j = 0; j < c.m_col; j++)
+            ASSERT_EQ(cc[i][j], c[i][j]);
+
     ASSERT_NE(&c, &cc);
 }
 
@@ -135,7 +148,7 @@ TEST(MatrixTest, row_col_negative)
     Matrix<int> b(0, -5);
     Matrix<double> c(-5, 0);
     Matrix<complex<float>> d(1, 0);
-    //Ê£ÄÊµãÂ§çÂà∂ÊûÑÈÄ†Âô®
+    //ºÏ≤‚∏¥÷∆ππ‘Ï∆˜
     Matrix<complex<int>> aa(a);
     Matrix<int> bb(b);
 
@@ -153,22 +166,145 @@ TEST(MatrixTest, row_col_negative)
     ASSERT_GE(bb.m_col, 0) << "m_col is negetive";
 }
 
-TEST(MatrixTest, assignmentOperatorTest)
+TEST(MatrixTest, AssignmentOperator)
 {
+    int i, j;
     Matrix<complex<int>> a({{complex<int>(1,2),complex<int>(3,4)},
                             {complex<int>(5,6),complex<int>(7,8)}});
-    a.printMatrix();
     Matrix<complex<int>> aa = a;
-    aa.printMatrix();
+    for (i = 0; i < a.m_row; i++)
+        for (j = 0; j < a.m_col; j++)
+            ASSERT_EQ(aa[i][j], a[i][j]);
+    ASSERT_NE(&a, &aa);
 
     Matrix<double> b({ {1,2,3,4},
                         {5,6,7,8}});
     Matrix<double> bb = b;
-    b.printMatrix();
-    ASSERT_NE(&a, &aa);
+    for (i = 0; i < b.m_row; i++)
+        for (j = 0; j < b.m_col; j++)
+            ASSERT_EQ(bb[i][j], b[i][j]);
     ASSERT_NE(&b, &bb);
 }
 
+TEST(MatrixTest, ComplexConjugate)//»°π≤ÈÓtest
+{
+    int i, j;
+    Matrix<complex<int>> c({ {complex<int>(1,2),complex<int>(3,4)},
+                    {complex<int>(5,6),complex<int>(7,8)} });
+    Matrix<complex<int>> cc({ {complex<int>(1,-2),complex<int>(3,-4)},
+                {complex<int>(5,-6),complex<int>(7,-8)} });
+    for (i = 0; i <cc.m_row; i++)
+        for (j = 0; j < cc.m_col; j++)
+            ASSERT_EQ(conj(cc[i][j]), c[i][j]);
+}
 
+TEST(MatrixTest, trace)
+{
+    Matrix<double> a({  {1,1,1,1},
+                        {2,2,2,2},
+                        {1,2,3,4},
+                        {1,5,6,9} });
+    ASSERT_EQ(15, a.trace());
+
+    Matrix<double> b({ {5.5,2} });
+    ASSERT_EQ(0, b.trace());
+
+    Matrix<complex<double>> d({ {complex<double>(1,1),complex<double>(1,1) },
+                        {complex<double>(1,-1),complex<double>(1,1)} });
+    ASSERT_EQ(complex<double>(2, 2), d.trace());
+
+}
+
+TEST(MatrixTest, determinant)
+{
+    Matrix<double> a({  {1,1,1,1},
+                        {2,2,2,2},
+                        {1,2,3,4},
+                        {1,5,6,9} });
+    ASSERT_EQ(0, a.determinant());
+
+    Matrix<double> b({{5.5}});
+    ASSERT_EQ(5.5,b.determinant());
+
+    Matrix<double> c({  {1,1},
+                        {2,3} });
+    ASSERT_EQ(1, c.determinant());
+
+    Matrix<complex<double>> d({ {complex<double>(1,1),complex<double>(1,1) },
+                            {complex<double>(1,-1),complex<double>(1,1)} });
+    ASSERT_EQ(complex<double>(-2, 2), d.determinant());
+}
+
+TEST(MatrixTest, Inverse) 
+{
+    Matrix<double> b({ {4} });
+    (b.Inverse()).printMatrix();
+    (b * b.Inverse()).printMatrix();
+
+    Matrix<double> c({  {1,-1},
+                        {1,1} });
+    (c.Inverse()).printMatrix();
+    (c * c.Inverse()).printMatrix();
+
+    Matrix<double> d({  {1,0,0},
+                        {0,2,0},
+                        {0,0,4} });
+    (d.Inverse()).printMatrix();
+    (d * d.Inverse()).printMatrix();
+
+    Matrix<complex<double>> e({ {complex<double>(1,1),complex<double>(1,1) },
+                        {complex<double>(1,-1),complex<double>(1,1)} });
+    e.Inverse().printMatrix();
+    (e * e.Inverse()).printMatrix();
+}
+
+TEST(MatrixTest, Max_Min_Sum_Mean_Test) 
+{
+    Matrix<double> a({  {5,2,1,1},
+                        {2,3,4,5},
+                        {1,2,3,4},
+                        {1,5,6,9} });
+    double sum = (double)(5 + 2 + 1 + 1 + 2 + 3 + 4 + 5 + 1 + 2 + 3 + 4 + 1 + 5 + 6 + 9);
+    double mean = ((5 + 2 + 1 + 1 + 2 + 3 + 4 + 5 + 1 + 2 + 3 + 4 + 1 + 5 + 6 + 9)/16.0);
+    ASSERT_EQ(sum, a.sum());
+    ASSERT_EQ(9, a.max());
+    ASSERT_EQ(1, a.min());
+    ASSERT_EQ(mean, a.mean());
+
+    double row_sum = (double)(5 + 2 + 1 + 1);
+    double row_mean = (double)(5 + 2 + 1 + 1)/4.0;
+    ASSERT_EQ(row_sum, a.row_sum(0));
+    ASSERT_EQ(5, a.row_max(0));
+    ASSERT_EQ(1, a.row_min(0));
+    ASSERT_EQ(row_mean, a.row_mean(0));
+
+    double col_sum = (double)(2+3+2+5);
+    double col_mean = (double)(2 + 3 + 2 + 5) / 4.0;
+    ASSERT_EQ(col_sum, a.col_sum(1));
+    ASSERT_EQ(5, a.col_max(1));
+    ASSERT_EQ(2, a.col_min(1));
+    ASSERT_EQ(col_mean, a.col_mean(1));
+}
+
+TEST(MatrxTest, reshape)
+{
+    Matrix<double> a({  {5,2,1,1,2},
+                        {2,3,4,5,3},
+                        {1,2,3,4,4},
+                        {1,5,6,9,5} });
+    a.reshape(2, 10).printMatrix();
+    a.reshape(3, 4).printMatrix();//≤ª¬˙◊„◊‹ ˝‘Ú∑µªÿ‘≠æÿ’Û
+}
+
+TEST(MatrxTest, slice)
+{
+    Matrix<double> a({ {5,2,1,1,2},
+                        {2,3,4,5,3},
+                        {1,2,3,4,4},
+                        {1,5,6,9,5} });
+    a.slice(1, 3, 2, 4).printMatrix();
+    a.slice(-1, -1, 5, 5).printMatrix();//‘ΩΩÁµƒπÈŒ™0ªÚ4
+    a.slice(2, 2, 1, 4).printMatrix();//¥Ú”°µ⁄∂˛––£¨1~4¡–µƒ‘™Àÿ
+}
 
 
