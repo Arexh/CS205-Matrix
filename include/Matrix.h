@@ -713,7 +713,8 @@ Matrix<T> Matrix<T>::Inverse() {
     assert(deter != tmp1);
     if(this->m_row==1)
     {
-        Matrix<T> tmp({ {static_cast<T>(1) / (*this)[0][0]} });
+        vector<vector<T>> v { {static_cast<T>(1) / (*this)[0][0]} };
+        Matrix<T> tmp(v);
         return tmp;
     }
     else {
