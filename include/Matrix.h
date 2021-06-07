@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <math.h>
 #include <complex>
+#include <typeinfo>
 
 using namespace std;
 using std::setw;
@@ -23,6 +24,8 @@ public:
     bool operator==(Matrix& m1);     //矩阵相同时true
     bool operator!=(Matrix& m1);     //矩阵不相同时true
     bool is_size_equal(const Matrix& m1);
+    bool is_square();
+    bool is_zero();
     Matrix<T> operator+(Matrix& m1);
     Matrix<T> operator-(Matrix& m1);
     Matrix<T> operator*(Matrix& m1);
@@ -35,14 +38,13 @@ public:
     Matrix<T> operator*=(int a);
     Matrix<T> operator/=(int a);
     Matrix<T> operator^(Matrix& m1); //矩阵按位置相乘
-    Matrix<T> operator~();           //取共轭矩阵
+    Matrix<T> conju();           //取共轭矩阵
 
-    Matrix<T> dot(Matrix& m1);   
-    Matrix<T> cross(Matrix& m1); 
+    Matrix<T> dot(Matrix& m1);
+    Matrix<T> cross(Matrix& m1);
     Matrix<T> Transposition();
     Matrix<T> toTransposition();
 
-    bool is_square();
     T determinant();
     T all_sort(int a[], int now, int length, T& determinant);
 
@@ -54,12 +56,23 @@ public:
     Matrix<T> LDU_factor_U();
 
     Matrix<T> Inverse();
+    Matrix<T> reshape(int r, int c);
+    Matrix<T> slice(int r1, int r2, int c1, int c2);
 
 
-    T sum(int row = 0, int col = 0);
-    T mean(int row = 0, int col = 0);
-    T max(int row = 0, int col = 0);
-    T min(int row = 0, int col = 0);
+    T sum();
+    T mean();
+    T max();
+    T min();
+    T row_max(int row);
+    T row_min(int row);
+    T row_sum(int row);
+    T row_mean(int row);
+
+    T col_max(int col);
+    T col_min(int col);
+    T col_sum(int col);
+    T col_mean(int col);
 
     void printMatrix();
 };
@@ -138,7 +151,7 @@ void Matrix<T>::printMatrix()
         }
         printf("\n");
     }
-    printf("------------------------\n");
+    printf("---------------------------------\n");
 }
 
 template <class T>
@@ -226,6 +239,20 @@ bool Matrix<T>::is_size_equal(const Matrix& m1) {
     else return false;
 }
 
+template<class T>
+bool Matrix<T>::is_square()
+{
+    if (this->m_row == this->m_col) return true;
+    else return false;
+}
+
+template<class T>
+bool Matrix<T>::is_zero()
+{
+    T tmp; tmp = 0;
+    if (this->determinant() = tmp) return true;
+    else return false;
+}
 
 template <class T>
 Matrix<T> Matrix<T>::operator+(Matrix& m1)
@@ -409,10 +436,17 @@ Matrix<T> Matrix<T>::operator^(Matrix<T>& m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator~()
+Matrix<T> Matrix<T>::conju()
 {
     assert(!this->empty());
-    return (*this);
+    Matrix<T> tmp(*this);
+    int i, j;
+    for (i = 0; i < this->m_row; i++)
+        for (j = 0; j < this->m_col; j++) {
+            tmp[i][j] = conj(tmp[i][j]);
+        }
+    return tmp;
+
 }
 //template< >
 // template<class T >
@@ -480,13 +514,6 @@ Matrix<T> Matrix<T>::toTransposition()
     return (*this);
 }
 
-template<class T>
-bool Matrix<T>::is_square()
-{
-    if (this->m_row == this->m_col) return true;
-    else return false;
-}
-
 template <class T>
 T Matrix<T>::determinant()
 {
@@ -549,14 +576,15 @@ T Matrix<T>::all_sort(int a[], int now, int length, T& determinant)
 template <class T>
 T Matrix<T>::trace()
 {
-    assert(m_col == m_row);
-    T trace;
-    trace = 0;
-    for (int i = 0; i < m_col; i++)
-    {
-        trace += (*this)[i][i];
+    if (this->is_square()) {
+        T trace = static_cast<T>(0);
+        for (int i = 0; i < m_col; i++)
+        {
+            trace += (*this)[i][i];
+        }
+        return trace;
     }
-    return trace;
+    else { return static_cast<T>(0);}
 }
 
 template <class T>
@@ -680,11 +708,18 @@ Matrix<T> Matrix<T>::LDU_factor_U()
 template<class T>
 Matrix<T> Matrix<T>::Inverse() {
     T deter = this->determinant();
-    assert(this->m_row==this->m_col);
-    //assert(deter!=0);
-        int i, j, k, m,tt=this->m_row, n = tt - 1;
-        Matrix<T> tmp(n, n);
+    assert(this->is_square());
+    T tmp1; tmp1 = 0;
+    assert(deter != tmp1);
+    if(this->m_row==1)
+    {
+        Matrix<T> tmp({ {static_cast<T>(1) / (*this)[0][0]} });
+        return tmp;
+    }
+    else {
+        int i, j, k, m, tt = this->m_row, n = tt - 1;
         Matrix<T> inverse(tt, tt);
+        Matrix<T> tmp(n, n);
         for (i = 0; i < tt; i++)
         {
 
@@ -696,177 +731,198 @@ Matrix<T> Matrix<T>::Inverse() {
 
                 T a = tmp.determinant();
                 if ((i + j) % 2 == 1) { a = -a; };
-                inverse[j][i] = a/this->determinant() ;
+                T b = a / (this->determinant());
+                inverse[j][i] = b;
             }
         }
         return inverse;
+    }
     
-        
 }
 
-
-template <class T>
-T Matrix<T>::sum(int row, int col)
+template<class T>
+Matrix<T> Matrix<T>::reshape(int r, int c)
 {
-    assert(0 <= row && row <= m_row);
-    assert(0 <= col && col <= m_col);
-
-    T sum;
-    sum = 0;
-
-    if (row == 0 && col == 0)
-    {
-        for (int i = 0; i < m_row; i++)
+    if (this->m_row * this->m_col != r * c) {
+        //cout << "ReshapeError:Not The Same Szie" << __FILE__ << __LINE__ << end;
+        return (*this);
+    }
+    else {
+        Matrix<T> ans(r, c);
+        int i, j, x = 0, y = 0;
+        for (i = 0; i < this->m_row; i++)
         {
-            for (int j = 0; j < m_col; j++)
+            for (j = 0; j < this->m_col; j++)
             {
-                sum += (*this)[i][j];
+                ans[x][y] = (*this)[i][j];
+                y++;
+                if (y == c) {
+                    x++;
+                    y = 0;
+                }
             }
         }
+        return ans;
     }
-    else if (row == 0 && col != 0)
+}
+
+template <class T>
+Matrix<T> Matrix<T>::slice(int r1, int r2, int c1, int c2)
+{
+    // assert(r1)
+    if (r1 > r2) { int tmp = r1; r1 = r2; r2 = tmp; }
+    if (c1 > c2) { int tmp = c1; c1 = c2; c2 = tmp; }
+    if (r1 < 0)
     {
-        for (int i = 0; i < m_row; i++)
-        {
-            sum += (*this)[i][col - 1];
-        }
+        if (r2 < 0) { r2 = 0; }
+        r1 = 0;
+    }
+    if (r2 >= this->m_row) {
+        if (r1 >= this->m_row) { r1 = this->m_row - 1; }
+        r2 = this->m_row - 1;
+    }
+    if (c1 < 0)
+    {
+        if (c2 < 0) { c2 = 0; }
+        c1 = 0;
+    }
+    if (c2 >= this->m_col)
+    {
+        if (c1 >= this->m_col) { c1 = this->m_col - 1; }
+        c2 = this->m_col - 1;
     }
 
-    else if (row != 0 && col == 0)
-    {
-        for (int i = 0; i < m_col; i++)
-        {
-            sum += (*this)[row - 1][i];
+    Matrix<T> tmp(r2 - r1 + 1, c2 - c1 + 1);
+    for (int i = r1; i <= r2; i++) {
+        for (int j = c1; j <= c2; j++) {
+            tmp[i - r1][j - c1] = (*this)[i][j];
         }
     }
-    else
+    return tmp;
+
+}
+
+template <class T>
+T Matrix<T>::sum()
+{
+    T sum; sum = 0;
+    for (int i = 0; i < m_row; i++)
     {
-        sum = (*this)[row - 1][col - 1];
+        for (int j = 0; j < m_col; j++)
+        {
+            sum += (*this)[i][j];
+        }
     }
     return (sum);
 }
 
 template <class T>
-T Matrix<T>::mean(int row, int col)
+T Matrix<T>::mean()
 {
-    assert(0 <= row && row <= m_row);
-    assert(0 <= col && col <= m_col);
-    if (row == 0 && col == 0)
-    {
-        return (this->sum() / m_col * m_row);
-    }
-    else if (row != 0 && col == 0)
-    {
-        return (this->sum(row, 0) / m_col);
-    }
-    else if (row == 0 && col != 0)
-    {
-        return (this->sum(0, col) / m_row);
-    }
-    else
-    {
-        return (*this)[row - 1][col - 1];
-    }
+    T total; total = this->m_row * this->m_col;
+    return (this->sum() / total);
 }
 
 template <class T>
-T Matrix<T>::max(int row, int col)
+T Matrix<T>::max()
 {
-    assert(0 <= row && row <= m_row);
-    assert(0 <= col && col <= m_col);
     int k = 0, m = 0, i, j;
-    if (row == 0 && col == 0)
-    {
-        for (i = 0; i < m_row; i++)
-        {
-            for (j = 0; j < m_col; j++)
-            {
-                if ((*this)[i][j] > (*this)[k][m])
-                {
-                    k = i;
-                    m = j;
-                }
+    for (i = 0; i < this->m_row; i++)
+        for (j = 0; j < this->m_col; j++)
+            if ((*this)[i][j] > (*this)[k][m]) {
+                k = i; m = j;
             }
-        }
-        return (*this)[k][m];
-    }
-    else if (row != 0 && col == 0)
-    {
-        k = row - 1;
-        for (i = 0; i < m_col; i++)
-        {
-            if ((*this)[k][i] > (*this)[k][m])
-            {
-                m = i;
-            }
-        }
-        return (*this)[k][m];
-    }
-    else if (row == 0 && col != 0)
-    {
-        m = col - 1;
-        for (i = 0; i < m_row; i++)
-        {
-            if ((*this)[i][m] > (*this)[k][m])
-            {
-                k = i;
-            }
-        }
-        return (*this)[k][m];
-    }
-    else
-    {
-        return (*this)[row - 1][col - 1];
-    }
+
+    return (*this)[k][m];
 }
 
 template <class T>
-T Matrix<T>::min(int row, int col)
+T Matrix<T>::min()
 {
-    assert(0 <= row && row <= m_row);
-    assert(0 <= col && col <= m_col);
-    int k = 0, m = 0, i, j;
-    if (row == 0 && col == 0)
-    {
-        for (i = 0; i < m_row; i++)
-        {
-            for (j = 0; j < m_col; j++)
-            {
-                if ((*this)[i][j] < (*this)[k][m])
-                {
-                    k = i;
-                    m = j;
-                }
-            }
-        }
-        return (*this)[k][m];
-    }
-    else if (row != 0 && col == 0)
-    {
-        k = row - 1;
-        for (i = 0; i < m_col; i++)
-        {
-            if ((*this)[k][i] < (*this)[k][m])
-            {
-                m = i;
-            }
-        }
-        return (*this)[k][m];
-    }
-    else if (row == 0 && col != 0)
-    {
-        m = col - 1;
-        for (i = 0; i < m_row; i++)
-        {
-            if ((*this)[i][m] < (*this)[k][m])
+    int k = 0, m = 0, i = 0, j = 0;
+    for (i = 0; i < this->m_row; i++) {
+        for (j = 0; j < this->m_col; j++) {
+            if ((*this)[k][m] > (*this)[i][j])
             {
                 k = i;
+                m = j;
             }
         }
-        return (*this)[k][m];
     }
-    else
-    {
-        return (*this)[row - 1][col - 1];
+    return (*this)[k][m];
+}
+template <typename T>
+T Matrix<T>::row_max(int row)
+{
+    assert(row >= 0 && row < this->m_row);
+    int k = 0;
+    for (int i = 0; i < this->m_col; i++) {
+        if ((*this)[row][k] < (*this)[row][i])
+            k = i;
     }
+    return (*this)[row][k];
+}
+template <typename T>
+T Matrix<T>::row_min(int row)
+{
+    assert(row >= 0 && row < this->m_row);
+    int k = 0;
+    for (int i = 0; i < this->m_col; i++)
+        if ((*this)[row][k] > (*this)[row][i])
+            k = i;
+
+    return (*this)[row][k];
+}
+template <typename T>
+T Matrix<T>::row_sum(int row)
+{
+    assert(row >= 0 && row < this->m_row);
+    T row_sum; row_sum = 0;
+    for (int i = 0; i < this->m_col; i++) {
+        row_sum += (*this)[row][i];
+    }
+    return row_sum;
+}
+template <typename T>
+T Matrix<T>::row_mean(int row)
+{
+    assert(row >= 0 && row < this->m_row);
+    T total; total = (this->m_col);
+    return this->row_sum(row) / total;
+}
+template <typename T>
+T Matrix<T>::col_max(int col) {
+    assert(col >= 0 && col < this->m_col);
+    int k = 0;
+    for (int i = 0; i < this->m_row; i++)
+        if ((*this)[k][col] < (*this)[i][col])
+            k = i;
+
+    return (*this)[k][col];
+}
+template <typename T>
+T Matrix<T>::col_min(int col) {
+    assert(col >= 0 && col < this->m_col);
+    int k = 0;
+    for (int i = 0; i < this->m_row; i++)
+        if ((*this)[k][col] > (*this)[i][col])
+            k = i;
+
+    return (*this)[k][col];
+}
+template <typename T>
+T Matrix<T>::col_sum(int col)
+{
+    assert(col >= 0 && col < this->m_col);
+    T col_sum; col_sum = 0;
+    for (int i = 0; i < this->m_row; i++) {
+        col_sum += (*this)[i][col];
+    }
+    return col_sum;
+}
+template <typename T>
+T Matrix<T>::col_mean(int col) {
+    assert(col >= 0 && col < this->m_col);
+    T total; total = this->m_row;
+    return this->col_sum(col) / total;
 }
