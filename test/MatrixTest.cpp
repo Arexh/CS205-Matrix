@@ -307,3 +307,39 @@ TEST(MatrxTest, slice)
     a.slice(-1, -1, 5, 5).printMatrix(); //Խ��Ĺ�Ϊ0��4
     a.slice(2, 2, 1, 4).printMatrix();   //��ӡ�ڶ��У�1~4�е�Ԫ��
 }
+
+TEST(MatrixTest, QR_decomposition)
+{
+    // 3 x 3 Matrix
+    Matrix<double> a({{0.5, 0.75, 0.5},
+                      {1.0, 0.5, 0.75},
+                      {0.25, 0.25, 0.25}});
+    auto aResult = a.QR_decomposition();
+    ASSERT_TRUE(aResult.first * aResult.second == a);
+
+    // 4 x 4 Matrix
+    Matrix<double> b({{1.0, 5.0, 3.0, 4.0},
+                      {7.0, 8.0, 2.0, 9.0},
+                      {7.0, 3.0, 2.0, 1.0},
+                      {9.0, 3.0, 5.0, 7.0}});
+    auto bResult = b.QR_decomposition();
+    ASSERT_TRUE((bResult.first * bResult.second) == b);
+
+    // 5 x 5 Matrix
+    Matrix<double> c({{2, 6, 4, 6, 8},
+                      {6, 7, 9, 7, 9},
+                      {2, 3, 6, 3, 5},
+                      {6, 1, 1, 5, 5},
+                      {3, 5, 6, 5, 6}});
+    auto cResult = c.QR_decomposition();
+    ASSERT_TRUE((cResult.first * cResult.second) == c);
+
+    // 5 x 5 Matrix
+    Matrix<double> d({{8.662634278267483, 2.3440981169711796, 3.414158790068152, 9.819959485632891, 9.812414578216162},
+                      {4.8096369839436495, 7.743133259609277, 9.871217856632036, 7.100783013043249, 8.127838524397976},
+                      {1.3468248609110365, 1.3120774834063536, 9.607366488550678, 2.852679282078192, 8.087038227451359},
+                      {7.556075051454403, 5.80117852857823, 3.550189544341768, 3.7807047754393994, 7.934423413357392},
+                      {2.866445996919499, 7.125441061546031, 4.53141730712106, 4.297092147605687, 2.5126585000174146}});
+    auto dResult = d.QR_decomposition();
+    ASSERT_TRUE((dResult.first * dResult.second) == d);
+}

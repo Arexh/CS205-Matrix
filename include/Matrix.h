@@ -10,6 +10,8 @@
 using namespace std;
 using std::setw;
 
+const double EQ_THRESHOLD = 1e-10;
+
 template <class T>
 class Matrix : public std::vector<std::vector<T>>
 {
@@ -20,16 +22,16 @@ public:
     Matrix(int row, int col);
     Matrix(vector<vector<T>> arr);
     Matrix(const Matrix& a);
-    Matrix<T> operator=(Matrix& m1); //深拷贝
+    Matrix<T> operator=(const Matrix<T>& m1); //深拷贝
     bool operator==(Matrix& m1);     //矩阵相同时true
     bool operator!=(Matrix& m1);     //矩阵不相同时true
     bool is_size_equal(const Matrix& m1);
     bool is_square();
     bool is_zero();
     Matrix<T> operator+(Matrix& m1);
-    Matrix<T> operator-(Matrix& m1);
-    Matrix<T> operator*(Matrix& m1);
-    Matrix<T> operator*(int a);
+    Matrix<T> operator-(Matrix<T>& m1);
+    Matrix<T> operator*(Matrix<T>& m1);
+    Matrix<T> operator*(T a);
     Matrix<T> operator/(double a);
 
     Matrix<T> operator+=(Matrix& m1);
@@ -75,6 +77,10 @@ public:
     T col_mean(int col);
 
     void printMatrix();
+    pair<Matrix<T>, Matrix<T>> QR_decomposition();
+    T norm();
+    Matrix<T> normalized();
+    void SetIdentity();
 };
 
 template <typename T>
@@ -155,7 +161,7 @@ void Matrix<T>::printMatrix()
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator=(Matrix& m1)
+Matrix<T> Matrix<T>::operator=(const Matrix<T>& m1)
 {
     this->clear();
     this->resize(m1.m_row);
@@ -181,30 +187,13 @@ Matrix<T> Matrix<T>::operator=(Matrix& m1)
 template <class T>
 bool Matrix<T>::operator==(Matrix& m1)
 {
-    int i = 0, j = 0;
-    bool isSame = true;
-    if (this->m_row != m1.m_row || this->m_col != m1.m_col)
-    {
-        isSame = false;
-    }
-    else
-    {
-        isSame = true;
-    }
-    while (isSame && i < this->m_row)
-    {
-        while (j < this->m_col)
-        {
-            if ((*this)[i][j] != m1[i][j])
-            {
-                isSame = false;
-                break;
-            }
-            j++;
+    if (this->m_row != m1.m_row || this->m_col != m1.m_col) return false;
+    for (int i = 0; i < m_row; i++) {
+        for (int j = 0; j < m_col; j++) {
+            if ((*this)[i][j] - m1[i][j] > EQ_THRESHOLD) return false;
         }
-        i++;
     }
-    return isSame;
+    return true;
 }
 
 template <class T>
@@ -271,7 +260,7 @@ Matrix<T> Matrix<T>::operator+(Matrix& m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator-(Matrix& m1)
+Matrix<T> Matrix<T>::operator-(Matrix<T>& m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
@@ -287,7 +276,7 @@ Matrix<T> Matrix<T>::operator-(Matrix& m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator*(Matrix& m1)
+Matrix<T> Matrix<T>::operator*(Matrix<T>& m1)
 {
     assert(this->m_col == m1.m_row && !this->empty());
     Matrix<T> tmp(this->m_row, m1.m_col);
@@ -306,7 +295,7 @@ Matrix<T> Matrix<T>::operator*(Matrix& m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator*(int a)
+Matrix<T> Matrix<T>::operator*(T a)
 {
     assert(!this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
@@ -926,4 +915,99 @@ T Matrix<T>::col_mean(int col) {
     assert(col >= 0 && col < this->m_col);
     T total; total = this->m_row;
     return this->col_sum(col) / total;
+}
+
+template <typename T>
+pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition()
+{
+    Matrix<T> input = *this;
+    vector<Matrix<T>> plist;
+    for (int j = 0; j < m_row - 1; j++) {
+        Matrix<T> a1(1, m_row - j);
+        Matrix<T> b1(1, m_row - j);
+
+        for (int i = j; i < m_row; i++) {
+            a1[0][i - j] = input[i][j];
+            b1[0][i - j] = static_cast<T>(0.0);
+        }
+        b1[0][0] = static_cast<T>(1.0);
+
+        T a1norm = a1.norm();
+        
+        int sgn = -1;
+        if (a1[0][0] < static_cast<T>(0.0)) {
+            sgn = 1;
+        }
+
+        Matrix<T> temp = b1 * sgn * a1norm;
+        Matrix<T> u = a1 - temp;
+        Matrix<T> n = u.normalized();
+        Matrix<T> nTrans = n.Transposition();
+        Matrix<T> I (m_row - j, m_row - j);
+        I.SetIdentity();
+
+        Matrix<T> temp1 = n * static_cast<T>(2.0);
+        Matrix<T> temp2 = nTrans * temp1;
+        Matrix<T> Ptemp = I - temp2;
+
+        Matrix<T> P (m_row, m_col);
+        P.SetIdentity();
+
+        for (int x = j; x < m_row; x++) {
+            for (int y = j; y < m_col; y++) {
+                P[x][y] = Ptemp[x - j][y - j];
+            }
+        }
+
+        plist.push_back(P);
+        input = P * input;
+    }
+
+    Matrix<T> qMat = plist[0];
+    for (int i = 1; i < m_row - 1; i++) {
+        Matrix<T> temp3 = plist[i].Transposition();
+        qMat = qMat * temp3;
+    }
+
+    int numElements = plist.size();
+    Matrix<T> rMat = plist[numElements - 1];
+    for (int i = (numElements - 2); i >= 0; i--) {
+        rMat = rMat * plist[i];
+    }
+    rMat = rMat * (*this);
+
+    return pair<Matrix<T>, Matrix<T>>(qMat, rMat);
+}
+
+template <typename T>
+T Matrix<T>::norm()
+{
+    T cumulativeSum = static_cast<T>(0.0);
+    for (int i = 0; i < m_row; i++) {
+        for (int j = 0; j < m_col; j++) {
+            cumulativeSum += (*this)[i][j] * (*this)[i][j];
+        }
+    }
+    return sqrt(cumulativeSum);
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::normalized()
+{
+    T norm = this->norm();
+    Matrix<T> copy(*this);
+    return copy * (static_cast<T>(1.0) / norm);
+}
+
+template <typename T>
+void Matrix<T>::SetIdentity() {
+    for (int i = 0 ; i < m_row; i++) {
+        for (int j = 0; j < m_col; j++) {
+            if (i == j) {
+                (*this)[i][j] = static_cast<T>(1.0);
+            } else {
+                (*this)[i][j] = static_cast<T>(0.0);
+            }
+        }
+    }
 }
