@@ -95,13 +95,12 @@ TEST(MatrixTest, TestMatrixMultiply)
 }
 
 TEST(MatrixTest, DefautConstructorTest)
-{ //�޲���
+{
     Matrix<int> a;
     a.printMatrix();
     Matrix<complex<double>> *b = new Matrix<complex<double>>;
     b->printMatrix();
     delete b;
-    //�в���
     Matrix<double> c(3, 3);
     c.printMatrix();
     Matrix<complex<int>> d(5, 5);
@@ -148,7 +147,7 @@ TEST(MatrixTest, row_col_negative)
     Matrix<int> b(0, -5);
     Matrix<double> c(-5, 0);
     Matrix<complex<float>> d(1, 0);
-    //��⸴�ƹ�����
+    //锟斤拷飧达拷乒锟斤拷锟斤拷锟�
     Matrix<complex<int>> aa(a);
     Matrix<int> bb(b);
 
@@ -186,7 +185,7 @@ TEST(MatrixTest, AssignmentOperator)
     ASSERT_NE(&b, &bb);
 }
 
-TEST(MatrixTest, ComplexConjugate) //ȡ����test
+TEST(MatrixTest, ComplexConjugate) //取锟斤拷锟斤拷test
 {
     int i, j;
     Matrix<complex<int>> c({{complex<int>(1, 2), complex<int>(3, 4)},
@@ -294,7 +293,7 @@ TEST(MatrxTest, reshape)
                       {1, 2, 3, 4, 4},
                       {1, 5, 6, 9, 5}});
     a.reshape(2, 10).printMatrix();
-    a.reshape(3, 4).printMatrix(); //�����������򷵻�ԭ����
+    a.reshape(3, 4).printMatrix();
 }
 
 TEST(MatrxTest, slice)
@@ -304,8 +303,8 @@ TEST(MatrxTest, slice)
                       {1, 2, 3, 4, 4},
                       {1, 5, 6, 9, 5}});
     a.slice(1, 3, 2, 4).printMatrix();
-    a.slice(-1, -1, 5, 5).printMatrix(); //Խ��Ĺ�Ϊ0��4
-    a.slice(2, 2, 1, 4).printMatrix();   //��ӡ�ڶ��У�1~4�е�Ԫ��
+    a.slice(-1, -1, 5, 5).printMatrix();
+    a.slice(2, 2, 1, 4).printMatrix(); 
 }
 
 TEST(MatrixTest, QR_decomposition)

@@ -6,6 +6,7 @@
 #include <math.h>
 #include <complex>
 #include <typeinfo>
+#include <random>
 
 using namespace std;
 using std::setw;
@@ -81,6 +82,13 @@ public:
     T norm();
     Matrix<T> normalized();
     void SetIdentity();
+
+    T* eigenvalues(int max_iter=10e3);
+    Matrix<T> eigenvector(T eigenvalue, int max_iter=10e3);
+    Matrix<T>* eigenvectors(int max_itr=10e3);
+    bool isUpperTri();
+    bool isCloseEnough(T a, T b, double threshold = EQ_THRESHOLD);
+    pair<T, Matrix<T>> eigenValueAndEigenVector(int max_itr=10e3);
 };
 
 template <typename T>
@@ -190,7 +198,7 @@ bool Matrix<T>::operator==(Matrix& m1)
     if (this->m_row != m1.m_row || this->m_col != m1.m_col) return false;
     for (int i = 0; i < m_row; i++) {
         for (int j = 0; j < m_col; j++) {
-            if ((*this)[i][j] - m1[i][j] > EQ_THRESHOLD) return false;
+            if (!isCloseEnough((*this)[i][j], m1[i][j])) return false;
         }
     }
     return true;
@@ -917,6 +925,7 @@ T Matrix<T>::col_mean(int col) {
     return this->col_sum(col) / total;
 }
 
+// from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbQR.h
 template <typename T>
 pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition()
 {
@@ -1010,4 +1019,115 @@ void Matrix<T>::SetIdentity() {
             }
         }
     }
+}
+
+// from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbEIG.h
+// only work for symmetric metrices
+template <typename T>
+T* Matrix<T>::eigenvalues(int max_iter) {
+    Matrix<T> A = (*this);
+    Matrix<T> identityMatrix (m_row, m_col);
+    identityMatrix.SetIdentity();
+
+    for (int i = 0; i < max_iter; i++) {
+        auto qrResult = A.QR_decomposition();
+        A = qrResult.second * qrResult.first;
+        if (A.isUpperTri()) break;
+    }
+    
+    T *eigenvalues = new T[m_row];
+    for (int i = 0; i < m_row; i++) {
+        eigenvalues[i] = A[i][i];
+    }
+    return eigenvalues;
+}
+
+template <typename T>
+bool Matrix<T>::isCloseEnough(T a, T b, double threshold) {
+    return abs(a - b) < static_cast<T>(threshold);
+}
+
+template <typename T>
+bool Matrix<T>::isUpperTri() {
+    T cumulativeSum = static_cast<T>(0);
+    for (int i = 1; i < m_row; i++) {
+        for (int j = 0; j < i; j++) {
+            cumulativeSum += (*this)[i][j];
+        }
+    }
+    return isCloseEnough(cumulativeSum, static_cast<T>(0));
+}
+
+// from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbEIG.h
+template <typename T>
+Matrix<T> Matrix<T>::eigenvector(T eigenvalue, int max_iter) {
+    Matrix<T> A = (*this);
+    random_device myRandomDevice;
+    mt19937 myRandomGenerator(myRandomDevice());
+    uniform_int_distribution<int> myDistribution(1.0, 10.0);
+    
+    Matrix<T> identityMatrix(m_row, m_col);
+    identityMatrix.SetIdentity();
+
+    Matrix<T> v(m_row, 1);
+    for (int i = 0; i < m_row; i++) {
+        v[i][0] = static_cast<T>(myDistribution(myRandomGenerator));
+    }
+
+    T deltaThreshold = static_cast<T>(EQ_THRESHOLD);
+    T delta = static_cast<T>(1e-6);
+    Matrix<T> preVector(m_row, 1);
+    Matrix<T> tempMatrix(m_row, m_row);
+    
+    for (int i = 0; i < max_iter; i++) {
+        preVector = v;
+        Matrix<T> temp = identityMatrix * eigenvalue;
+        tempMatrix = A - temp;
+        tempMatrix = tempMatrix.Inverse();
+        v = tempMatrix * v;
+        v = v.normalized();
+
+        delta = (v - preVector).norm();
+        if (delta > deltaThreshold) break;
+    }
+    return v;
+}
+
+template <typename T>
+Matrix<T>* Matrix<T>::eigenvectors(int max_itr) {
+    Matrix<T> * eigenvectors = new Matrix<T>[m_row];
+    T * eigenvalues = this->eigenvalues();
+    for (int i = 0; i < m_row; i++) {
+        eigenvectors[i] = this->eigenvector(*(eigenvalues + i));
+    }
+    return eigenvectors;
+}
+
+// from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbEIG.h
+template <typename T>
+pair<T, Matrix<T>> Matrix<T>::eigenValueAndEigenVector(int max_itr) {
+    T eigenvalue;
+    Matrix<T> inputMatrix = (*this);
+    random_device myRandomDevice;
+    mt19937 myRandomGenerator(myRandomDevice());
+    uniform_int_distribution<int> myDistribution(1.0, 10.0);
+    Matrix<T> identityMatrix(m_row, m_col);
+    identityMatrix.SetIdentity();
+    
+    Matrix<T> v(m_row, 1);
+    for (int i = 0; i < m_row; i++) {
+        v[i][0] = static_cast<T>(static_cast<T>(myDistribution(myRandomGenerator)));
+    }
+    Matrix<T> v1(m_row, 1);
+    for (int i = 0; i < max_itr; i++) {
+        v1 = inputMatrix * v;
+        v1 = v1.normalized();
+        v = v1;
+    }
+    T cumulativeSum = static_cast<T>(0.0);
+    for (int i = 1; i < m_row; i++) {
+        cumulativeSum += inputMatrix[0][i] * v1[i][0];
+    }
+    eigenvalue = (cumulativeSum / v1[0][0]) + inputMatrix[0][0];
+    return pair<T, Matrix<T>>(eigenvalue, v1);
 }
