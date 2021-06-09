@@ -45,6 +45,7 @@ add_executable(
 target_link_libraries(
   ${TestModule}
   gtest_main
+  ${OpenCV_LIBS}
 )
 
 include(GoogleTest)

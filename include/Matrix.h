@@ -1,4 +1,5 @@
 #pragma once
+#include <opencv2/opencv.hpp>
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -19,37 +20,37 @@ class Matrix : public std::vector<std::vector<T>>
 public:
     int m_row;
     int m_col;
-    explicit Matrix() :Matrix(0, 0) {};
+    explicit Matrix() : Matrix(0, 0){};
     Matrix(int row, int col);
     Matrix(vector<vector<T>> arr);
-    Matrix(const Matrix& a);
-    Matrix<T> operator=(const Matrix<T>& m1); //深拷贝
-    bool operator==(Matrix& m1);     //矩阵相同时true
-    bool operator!=(Matrix& m1);     //矩阵不相同时true
-    bool is_size_equal(const Matrix& m1);
+    Matrix(const Matrix &a);
+    Matrix<T> operator=(const Matrix<T> &m1); //深拷贝
+    bool operator==(Matrix &m1);              //矩阵相同时true
+    bool operator!=(Matrix &m1);              //矩阵不相同时true
+    bool is_size_equal(const Matrix &m1);
     bool is_square();
     bool is_zero();
-    Matrix<T> operator+(Matrix& m1);
-    Matrix<T> operator-(Matrix<T>& m1);
-    Matrix<T> operator*(Matrix<T>& m1);
+    Matrix<T> operator+(Matrix &m1);
+    Matrix<T> operator-(Matrix<T> &m1);
+    Matrix<T> operator*(Matrix<T> &m1);
     Matrix<T> operator*(T a);
     Matrix<T> operator/(double a);
 
-    Matrix<T> operator+=(Matrix& m1);
-    Matrix<T> operator-=(Matrix& m1);
-    Matrix<T> operator*=(Matrix& m1);
+    Matrix<T> operator+=(Matrix &m1);
+    Matrix<T> operator-=(Matrix &m1);
+    Matrix<T> operator*=(Matrix &m1);
     Matrix<T> operator*=(int a);
     Matrix<T> operator/=(int a);
-    Matrix<T> operator^(Matrix& m1); //矩阵按位置相乘
-    Matrix<T> conju();           //取共轭矩阵
+    Matrix<T> operator^(Matrix &m1); //矩阵按位置相乘
+    Matrix<T> conju();               //取共轭矩阵
 
-    Matrix<T> dot(Matrix& m1);
-    Matrix<T> cross(Matrix& m1);
+    Matrix<T> dot(Matrix &m1);
+    Matrix<T> cross(Matrix &m1);
     Matrix<T> Transposition();
     Matrix<T> toTransposition();
 
     T determinant();
-    T all_sort(int a[], int now, int length, T& determinant);
+    T all_sort(int a[], int now, int length, T &determinant);
 
     T trace();
     Matrix<T> LU_factor_U();
@@ -61,7 +62,6 @@ public:
     Matrix<T> Inverse();
     Matrix<T> reshape(int r, int c);
     Matrix<T> slice(int r1, int r2, int c1, int c2);
-
 
     T sum();
     T mean();
@@ -83,23 +83,31 @@ public:
     Matrix<T> normalized();
     void SetIdentity();
 
-    T* eigenvalues(int max_iter=10e3);
-    Matrix<T> eigenvector(T eigenvalue, int max_iter=10e3);
-    Matrix<T>* eigenvectors(int max_itr=10e3);
+    T *eigenvalues(int max_iter = 10e3);
+    Matrix<T> eigenvector(T eigenvalue, int max_iter = 10e3);
+    Matrix<T> *eigenvectors(int max_itr = 10e3);
     bool isUpperTri();
     bool isCloseEnough(T a, T b, double threshold = EQ_THRESHOLD);
-    pair<T, Matrix<T>> eigenValueAndEigenVector(int max_itr=10e3);
+    pair<T, Matrix<T>> eigenValueAndEigenVector(int max_itr = 10e3);
+    static Matrix<T> fromOpenCV(const cv::Mat &cvMat);
+    T** toArray();
+    cv::Mat* toOpenCVMat(int type);
+
+private:
+    void printMatrixInt();
 };
 
 template <typename T>
 Matrix<T>::Matrix(int row, int col)
 {
-    if (row <= 0 || col <= 0) {
+    if (row <= 0 || col <= 0)
+    {
         cout << "You input negative row/col num" << endl;
         this->m_row = 0;
         this->m_col = 0;
     }
-    else {
+    else
+    {
         this->m_row = row;
         this->m_col = col;
         this->resize(row);
@@ -134,7 +142,7 @@ Matrix<T>::Matrix(vector<vector<T>> arr)
 }
 
 template <class T>
-Matrix<T>::Matrix(const Matrix& a)
+Matrix<T>::Matrix(const Matrix &a)
 {
     this->m_row = a.m_row;
     this->m_col = a.m_col;
@@ -161,7 +169,7 @@ void Matrix<T>::printMatrix()
     {
         for (int j = 0; j < m_col; j++)
         {
-            cout << setprecision(2) << std::setw(7) << (*this)[i][j] << " ";
+            cout << std::setw(7) << (*this)[i][j] << " ";
         }
         printf("\n");
     }
@@ -169,7 +177,34 @@ void Matrix<T>::printMatrix()
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator=(const Matrix<T>& m1)
+void Matrix<T>::printMatrixInt()
+{
+    printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
+    for (int i = 0; i < m_row; i++)
+    {
+        for (int j = 0; j < m_col; j++)
+        {
+            cout << setprecision(2) << std::setw(7) << ((int)(*this)[i][j]) << " ";
+        }
+        printf("\n");
+    }
+    printf("---------------------------------\n");
+}
+
+template <>
+void Matrix<char>::printMatrix()
+{
+    printMatrixInt();
+}
+
+template <>
+void Matrix<uchar>::printMatrix()
+{
+    printMatrixInt();
+}
+
+template <class T>
+Matrix<T> Matrix<T>::operator=(const Matrix<T> &m1)
 {
     this->clear();
     this->resize(m1.m_row);
@@ -193,19 +228,23 @@ Matrix<T> Matrix<T>::operator=(const Matrix<T>& m1)
 }
 
 template <class T>
-bool Matrix<T>::operator==(Matrix& m1)
+bool Matrix<T>::operator==(Matrix &m1)
 {
-    if (this->m_row != m1.m_row || this->m_col != m1.m_col) return false;
-    for (int i = 0; i < m_row; i++) {
-        for (int j = 0; j < m_col; j++) {
-            if (!isCloseEnough((*this)[i][j], m1[i][j])) return false;
+    if (this->m_row != m1.m_row || this->m_col != m1.m_col)
+        return false;
+    for (int i = 0; i < m_row; i++)
+    {
+        for (int j = 0; j < m_col; j++)
+        {
+            if (!isCloseEnough((*this)[i][j], m1[i][j]))
+                return false;
         }
     }
     return true;
 }
 
 template <class T>
-bool Matrix<T>::operator!=(Matrix& m1)
+bool Matrix<T>::operator!=(Matrix &m1)
 {
     int i = 0, j = 0;
     bool isSame = false;
@@ -231,28 +270,36 @@ bool Matrix<T>::operator!=(Matrix& m1)
 }
 
 template <class T>
-bool Matrix<T>::is_size_equal(const Matrix& m1) {
-    if (this->m_row == m1.m_row && this->m_col == m1.m_col) return true;
-    else return false;
-}
-
-template<class T>
-bool Matrix<T>::is_square()
+bool Matrix<T>::is_size_equal(const Matrix &m1)
 {
-    if (this->m_row == this->m_col) return true;
-    else return false;
-}
-
-template<class T>
-bool Matrix<T>::is_zero()
-{
-    T tmp; tmp = 0;
-    if (this->determinant() = tmp) return true;
-    else return false;
+    if (this->m_row == m1.m_row && this->m_col == m1.m_col)
+        return true;
+    else
+        return false;
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator+(Matrix& m1)
+bool Matrix<T>::is_square()
+{
+    if (this->m_row == this->m_col)
+        return true;
+    else
+        return false;
+}
+
+template <class T>
+bool Matrix<T>::is_zero()
+{
+    T tmp;
+    tmp = 0;
+    if (this->determinant() = tmp)
+        return true;
+    else
+        return false;
+}
+
+template <class T>
+Matrix<T> Matrix<T>::operator+(Matrix &m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
@@ -268,7 +315,7 @@ Matrix<T> Matrix<T>::operator+(Matrix& m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator-(Matrix<T>& m1)
+Matrix<T> Matrix<T>::operator-(Matrix<T> &m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     Matrix<T> tmp(this->m_row, this->m_col);
@@ -284,7 +331,7 @@ Matrix<T> Matrix<T>::operator-(Matrix<T>& m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator*(Matrix<T>& m1)
+Matrix<T> Matrix<T>::operator*(Matrix<T> &m1)
 {
     assert(this->m_col == m1.m_row && !this->empty());
     Matrix<T> tmp(this->m_row, m1.m_col);
@@ -335,7 +382,7 @@ Matrix<T> Matrix<T>::operator/(double a)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator+=(Matrix& m1)
+Matrix<T> Matrix<T>::operator+=(Matrix &m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     for (int i = 0; i < this->m_row; i++)
@@ -349,7 +396,7 @@ Matrix<T> Matrix<T>::operator+=(Matrix& m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator-=(Matrix& m1)
+Matrix<T> Matrix<T>::operator-=(Matrix &m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     for (int i = 0; i < this->m_row; i++)
@@ -363,7 +410,7 @@ Matrix<T> Matrix<T>::operator-=(Matrix& m1)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator*=(Matrix& m1)
+Matrix<T> Matrix<T>::operator*=(Matrix &m1)
 {
     assert(this->m_col == m1.m_row && !this->empty());
     Matrix<T> tmp(*this);
@@ -418,7 +465,7 @@ Matrix<T> Matrix<T>::operator/=(int a)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator^(Matrix<T>& m1)
+Matrix<T> Matrix<T>::operator^(Matrix<T> &m1)
 {
     assert(is_size_equal(m1) && !this->empty());
     int i, j;
@@ -439,11 +486,11 @@ Matrix<T> Matrix<T>::conju()
     Matrix<T> tmp(*this);
     int i, j;
     for (i = 0; i < this->m_row; i++)
-        for (j = 0; j < this->m_col; j++) {
+        for (j = 0; j < this->m_col; j++)
+        {
             tmp[i][j] = conj(tmp[i][j]);
         }
     return tmp;
-
 }
 //template< >
 // template<class T >
@@ -459,13 +506,13 @@ Matrix<T> Matrix<T>::conju()
 // }
 
 template <class T>
-Matrix<T> Matrix<T>::dot(Matrix<T>& m1)
+Matrix<T> Matrix<T>::dot(Matrix<T> &m1)
 {
     return (*this) ^ m1;
 }
 
 template <class T>
-Matrix<T> Matrix<T>::cross(Matrix<T>& m1)
+Matrix<T> Matrix<T>::cross(Matrix<T> &m1)
 {
     return (*this) * m1;
 }
@@ -518,7 +565,7 @@ T Matrix<T>::determinant()
     int length = m_col, now = 0;
     T d;
     d = 0;
-    int* permutation = new int[length];
+    int *permutation = new int[length];
     //初始化全排列数组
     for (int i = 0; i < length; i++)
     {
@@ -532,7 +579,7 @@ T Matrix<T>::determinant()
 }
 
 template <class T>
-T Matrix<T>::all_sort(int a[], int now, int length, T& determinant)
+T Matrix<T>::all_sort(int a[], int now, int length, T &determinant)
 {
     if (now == length - 1)
     {
@@ -573,7 +620,8 @@ T Matrix<T>::all_sort(int a[], int now, int length, T& determinant)
 template <class T>
 T Matrix<T>::trace()
 {
-    if (this->is_square()) {
+    if (this->is_square())
+    {
         T trace = static_cast<T>(0);
         for (int i = 0; i < m_col; i++)
         {
@@ -581,7 +629,10 @@ T Matrix<T>::trace()
         }
         return trace;
     }
-    else { return static_cast<T>(0);}
+    else
+    {
+        return static_cast<T>(0);
+    }
 }
 
 template <class T>
@@ -702,19 +753,22 @@ Matrix<T> Matrix<T>::LDU_factor_U()
     return u;
 }
 
-template<class T>
-Matrix<T> Matrix<T>::Inverse() {
+template <class T>
+Matrix<T> Matrix<T>::Inverse()
+{
     T deter = this->determinant();
     assert(this->is_square());
-    T tmp1; tmp1 = 0;
+    T tmp1;
+    tmp1 = 0;
     assert(deter != tmp1);
-    if(this->m_row==1)
+    if (this->m_row == 1)
     {
-        vector<vector<T>> v { {static_cast<T>(1) / (*this)[0][0]} };
+        vector<vector<T>> v{{static_cast<T>(1) / (*this)[0][0]}};
         Matrix<T> tmp(v);
         return tmp;
     }
-    else {
+    else
+    {
         int i, j, k, m, tt = this->m_row, n = tt - 1;
         Matrix<T> inverse(tt, tt);
         Matrix<T> tmp(n, n);
@@ -728,24 +782,28 @@ Matrix<T> Matrix<T>::Inverse() {
                         tmp[k][m] = (*this)[k >= i ? k + 1 : k][m >= j ? m + 1 : m];
 
                 T a = tmp.determinant();
-                if ((i + j) % 2 == 1) { a = -a; };
+                if ((i + j) % 2 == 1)
+                {
+                    a = -a;
+                };
                 T b = a / (this->determinant());
                 inverse[j][i] = b;
             }
         }
         return inverse;
     }
-    
 }
 
-template<class T>
+template <class T>
 Matrix<T> Matrix<T>::reshape(int r, int c)
 {
-    if (this->m_row * this->m_col != r * c) {
+    if (this->m_row * this->m_col != r * c)
+    {
         //cout << "ReshapeError:Not The Same Szie" << __FILE__ << __LINE__ << end;
         return (*this);
     }
-    else {
+    else
+    {
         Matrix<T> ans(r, c);
         int i, j, x = 0, y = 0;
         for (i = 0; i < this->m_row; i++)
@@ -754,7 +812,8 @@ Matrix<T> Matrix<T>::reshape(int r, int c)
             {
                 ans[x][y] = (*this)[i][j];
                 y++;
-                if (y == c) {
+                if (y == c)
+                {
                     x++;
                     y = 0;
                 }
@@ -768,42 +827,67 @@ template <class T>
 Matrix<T> Matrix<T>::slice(int r1, int r2, int c1, int c2)
 {
     // assert(r1)
-    if (r1 > r2) { int tmp = r1; r1 = r2; r2 = tmp; }
-    if (c1 > c2) { int tmp = c1; c1 = c2; c2 = tmp; }
+    if (r1 > r2)
+    {
+        int tmp = r1;
+        r1 = r2;
+        r2 = tmp;
+    }
+    if (c1 > c2)
+    {
+        int tmp = c1;
+        c1 = c2;
+        c2 = tmp;
+    }
     if (r1 < 0)
     {
-        if (r2 < 0) { r2 = 0; }
+        if (r2 < 0)
+        {
+            r2 = 0;
+        }
         r1 = 0;
     }
-    if (r2 >= this->m_row) {
-        if (r1 >= this->m_row) { r1 = this->m_row - 1; }
+    if (r2 >= this->m_row)
+    {
+        if (r1 >= this->m_row)
+        {
+            r1 = this->m_row - 1;
+        }
         r2 = this->m_row - 1;
     }
     if (c1 < 0)
     {
-        if (c2 < 0) { c2 = 0; }
+        if (c2 < 0)
+        {
+            c2 = 0;
+        }
         c1 = 0;
     }
     if (c2 >= this->m_col)
     {
-        if (c1 >= this->m_col) { c1 = this->m_col - 1; }
+        if (c1 >= this->m_col)
+        {
+            c1 = this->m_col - 1;
+        }
         c2 = this->m_col - 1;
     }
 
     Matrix<T> tmp(r2 - r1 + 1, c2 - c1 + 1);
-    for (int i = r1; i <= r2; i++) {
-        for (int j = c1; j <= c2; j++) {
+    for (int i = r1; i <= r2; i++)
+    {
+        for (int j = c1; j <= c2; j++)
+        {
             tmp[i - r1][j - c1] = (*this)[i][j];
         }
     }
     return tmp;
-
 }
 
 template <class T>
 T Matrix<T>::sum()
 {
-    T sum; sum = 0;
+    T sum;
+    sum = 0;
     for (int i = 0; i < m_row; i++)
     {
         for (int j = 0; j < m_col; j++)
@@ -817,7 +901,8 @@ T Matrix<T>::sum()
 template <class T>
 T Matrix<T>::mean()
 {
-    T total; total = this->m_row * this->m_col;
+    T total;
+    total = this->m_row * this->m_col;
     return (this->sum() / total);
 }
 
@@ -827,8 +912,10 @@ T Matrix<T>::max()
     int k = 0, m = 0, i, j;
     for (i = 0; i < this->m_row; i++)
         for (j = 0; j < this->m_col; j++)
-            if ((*this)[i][j] > (*this)[k][m]) {
-                k = i; m = j;
+            if ((*this)[i][j] > (*this)[k][m])
+            {
+                k = i;
+                m = j;
             }
 
     return (*this)[k][m];
@@ -838,8 +925,10 @@ template <class T>
 T Matrix<T>::min()
 {
     int k = 0, m = 0, i = 0, j = 0;
-    for (i = 0; i < this->m_row; i++) {
-        for (j = 0; j < this->m_col; j++) {
+    for (i = 0; i < this->m_row; i++)
+    {
+        for (j = 0; j < this->m_col; j++)
+        {
             if ((*this)[k][m] > (*this)[i][j])
             {
                 k = i;
@@ -854,7 +943,8 @@ T Matrix<T>::row_max(int row)
 {
     assert(row >= 0 && row < this->m_row);
     int k = 0;
-    for (int i = 0; i < this->m_col; i++) {
+    for (int i = 0; i < this->m_col; i++)
+    {
         if ((*this)[row][k] < (*this)[row][i])
             k = i;
     }
@@ -875,8 +965,10 @@ template <typename T>
 T Matrix<T>::row_sum(int row)
 {
     assert(row >= 0 && row < this->m_row);
-    T row_sum; row_sum = 0;
-    for (int i = 0; i < this->m_col; i++) {
+    T row_sum;
+    row_sum = 0;
+    for (int i = 0; i < this->m_col; i++)
+    {
         row_sum += (*this)[row][i];
     }
     return row_sum;
@@ -885,11 +977,13 @@ template <typename T>
 T Matrix<T>::row_mean(int row)
 {
     assert(row >= 0 && row < this->m_row);
-    T total; total = (this->m_col);
+    T total;
+    total = (this->m_col);
     return this->row_sum(row) / total;
 }
 template <typename T>
-T Matrix<T>::col_max(int col) {
+T Matrix<T>::col_max(int col)
+{
     assert(col >= 0 && col < this->m_col);
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
@@ -899,7 +993,8 @@ T Matrix<T>::col_max(int col) {
     return (*this)[k][col];
 }
 template <typename T>
-T Matrix<T>::col_min(int col) {
+T Matrix<T>::col_min(int col)
+{
     assert(col >= 0 && col < this->m_col);
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
@@ -912,16 +1007,20 @@ template <typename T>
 T Matrix<T>::col_sum(int col)
 {
     assert(col >= 0 && col < this->m_col);
-    T col_sum; col_sum = 0;
-    for (int i = 0; i < this->m_row; i++) {
+    T col_sum;
+    col_sum = 0;
+    for (int i = 0; i < this->m_row; i++)
+    {
         col_sum += (*this)[i][col];
     }
     return col_sum;
 }
 template <typename T>
-T Matrix<T>::col_mean(int col) {
+T Matrix<T>::col_mean(int col)
+{
     assert(col >= 0 && col < this->m_col);
-    T total; total = this->m_row;
+    T total;
+    total = this->m_row;
     return this->col_sum(col) / total;
 }
 
@@ -931,20 +1030,23 @@ pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition()
 {
     Matrix<T> input = *this;
     vector<Matrix<T>> plist;
-    for (int j = 0; j < m_row - 1; j++) {
+    for (int j = 0; j < m_row - 1; j++)
+    {
         Matrix<T> a1(1, m_row - j);
         Matrix<T> b1(1, m_row - j);
 
-        for (int i = j; i < m_row; i++) {
+        for (int i = j; i < m_row; i++)
+        {
             a1[0][i - j] = input[i][j];
             b1[0][i - j] = static_cast<T>(0.0);
         }
         b1[0][0] = static_cast<T>(1.0);
 
         T a1norm = a1.norm();
-        
+
         int sgn = -1;
-        if (a1[0][0] < static_cast<T>(0.0)) {
+        if (a1[0][0] < static_cast<T>(0.0))
+        {
             sgn = 1;
         }
 
@@ -952,18 +1054,20 @@ pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition()
         Matrix<T> u = a1 - temp;
         Matrix<T> n = u.normalized();
         Matrix<T> nTrans = n.Transposition();
-        Matrix<T> I (m_row - j, m_row - j);
+        Matrix<T> I(m_row - j, m_row - j);
         I.SetIdentity();
 
         Matrix<T> temp1 = n * static_cast<T>(2.0);
         Matrix<T> temp2 = nTrans * temp1;
         Matrix<T> Ptemp = I - temp2;
 
-        Matrix<T> P (m_row, m_col);
+        Matrix<T> P(m_row, m_col);
         P.SetIdentity();
 
-        for (int x = j; x < m_row; x++) {
-            for (int y = j; y < m_col; y++) {
+        for (int x = j; x < m_row; x++)
+        {
+            for (int y = j; y < m_col; y++)
+            {
                 P[x][y] = Ptemp[x - j][y - j];
             }
         }
@@ -973,14 +1077,16 @@ pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition()
     }
 
     Matrix<T> qMat = plist[0];
-    for (int i = 1; i < m_row - 1; i++) {
+    for (int i = 1; i < m_row - 1; i++)
+    {
         Matrix<T> temp3 = plist[i].Transposition();
         qMat = qMat * temp3;
     }
 
     int numElements = plist.size();
     Matrix<T> rMat = plist[numElements - 1];
-    for (int i = (numElements - 2); i >= 0; i--) {
+    for (int i = (numElements - 2); i >= 0; i--)
+    {
         rMat = rMat * plist[i];
     }
     rMat = rMat * (*this);
@@ -992,8 +1098,10 @@ template <typename T>
 T Matrix<T>::norm()
 {
     T cumulativeSum = static_cast<T>(0.0);
-    for (int i = 0; i < m_row; i++) {
-        for (int j = 0; j < m_col; j++) {
+    for (int i = 0; i < m_row; i++)
+    {
+        for (int j = 0; j < m_col; j++)
+        {
             cumulativeSum += (*this)[i][j] * (*this)[i][j];
         }
     }
@@ -1009,12 +1117,18 @@ Matrix<T> Matrix<T>::normalized()
 }
 
 template <typename T>
-void Matrix<T>::SetIdentity() {
-    for (int i = 0 ; i < m_row; i++) {
-        for (int j = 0; j < m_col; j++) {
-            if (i == j) {
+void Matrix<T>::SetIdentity()
+{
+    for (int i = 0; i < m_row; i++)
+    {
+        for (int j = 0; j < m_col; j++)
+        {
+            if (i == j)
+            {
                 (*this)[i][j] = static_cast<T>(1.0);
-            } else {
+            }
+            else
+            {
                 (*this)[i][j] = static_cast<T>(0.0);
             }
         }
@@ -1024,34 +1138,42 @@ void Matrix<T>::SetIdentity() {
 // from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbEIG.h
 // only work for symmetric metrices
 template <typename T>
-T* Matrix<T>::eigenvalues(int max_iter) {
+T *Matrix<T>::eigenvalues(int max_iter)
+{
     Matrix<T> A = (*this);
-    Matrix<T> identityMatrix (m_row, m_col);
+    Matrix<T> identityMatrix(m_row, m_col);
     identityMatrix.SetIdentity();
 
-    for (int i = 0; i < max_iter; i++) {
+    for (int i = 0; i < max_iter; i++)
+    {
         auto qrResult = A.QR_decomposition();
         A = qrResult.second * qrResult.first;
-        if (A.isUpperTri()) break;
+        if (A.isUpperTri())
+            break;
     }
-    
+
     T *eigenvalues = new T[m_row];
-    for (int i = 0; i < m_row; i++) {
+    for (int i = 0; i < m_row; i++)
+    {
         eigenvalues[i] = A[i][i];
     }
     return eigenvalues;
 }
 
 template <typename T>
-bool Matrix<T>::isCloseEnough(T a, T b, double threshold) {
+bool Matrix<T>::isCloseEnough(T a, T b, double threshold)
+{
     return abs(a - b) < static_cast<T>(threshold);
 }
 
 template <typename T>
-bool Matrix<T>::isUpperTri() {
+bool Matrix<T>::isUpperTri()
+{
     T cumulativeSum = static_cast<T>(0);
-    for (int i = 1; i < m_row; i++) {
-        for (int j = 0; j < i; j++) {
+    for (int i = 1; i < m_row; i++)
+    {
+        for (int j = 0; j < i; j++)
+        {
             cumulativeSum += (*this)[i][j];
         }
     }
@@ -1060,17 +1182,19 @@ bool Matrix<T>::isUpperTri() {
 
 // from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbEIG.h
 template <typename T>
-Matrix<T> Matrix<T>::eigenvector(T eigenvalue, int max_iter) {
+Matrix<T> Matrix<T>::eigenvector(T eigenvalue, int max_iter)
+{
     Matrix<T> A = (*this);
     random_device myRandomDevice;
     mt19937 myRandomGenerator(myRandomDevice());
     uniform_int_distribution<int> myDistribution(1.0, 10.0);
-    
+
     Matrix<T> identityMatrix(m_row, m_col);
     identityMatrix.SetIdentity();
 
     Matrix<T> v(m_row, 1);
-    for (int i = 0; i < m_row; i++) {
+    for (int i = 0; i < m_row; i++)
+    {
         v[i][0] = static_cast<T>(myDistribution(myRandomGenerator));
     }
 
@@ -1078,8 +1202,9 @@ Matrix<T> Matrix<T>::eigenvector(T eigenvalue, int max_iter) {
     T delta = static_cast<T>(1e-6);
     Matrix<T> preVector(m_row, 1);
     Matrix<T> tempMatrix(m_row, m_row);
-    
-    for (int i = 0; i < max_iter; i++) {
+
+    for (int i = 0; i < max_iter; i++)
+    {
         preVector = v;
         Matrix<T> temp = identityMatrix * eigenvalue;
         tempMatrix = A - temp;
@@ -1088,16 +1213,19 @@ Matrix<T> Matrix<T>::eigenvector(T eigenvalue, int max_iter) {
         v = v.normalized();
 
         delta = (v - preVector).norm();
-        if (delta > deltaThreshold) break;
+        if (delta > deltaThreshold)
+            break;
     }
     return v;
 }
 
 template <typename T>
-Matrix<T>* Matrix<T>::eigenvectors(int max_itr) {
-    Matrix<T> * eigenvectors = new Matrix<T>[m_row];
-    T * eigenvalues = this->eigenvalues();
-    for (int i = 0; i < m_row; i++) {
+Matrix<T> *Matrix<T>::eigenvectors(int max_itr)
+{
+    Matrix<T> *eigenvectors = new Matrix<T>[m_row];
+    T *eigenvalues = this->eigenvalues();
+    for (int i = 0; i < m_row; i++)
+    {
         eigenvectors[i] = this->eigenvector(*(eigenvalues + i));
     }
     return eigenvectors;
@@ -1105,7 +1233,8 @@ Matrix<T>* Matrix<T>::eigenvectors(int max_itr) {
 
 // from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbEIG.h
 template <typename T>
-pair<T, Matrix<T>> Matrix<T>::eigenValueAndEigenVector(int max_itr) {
+pair<T, Matrix<T>> Matrix<T>::eigenValueAndEigenVector(int max_itr)
+{
     T eigenvalue;
     Matrix<T> inputMatrix = (*this);
     random_device myRandomDevice;
@@ -1113,21 +1242,80 @@ pair<T, Matrix<T>> Matrix<T>::eigenValueAndEigenVector(int max_itr) {
     uniform_int_distribution<int> myDistribution(1.0, 10.0);
     Matrix<T> identityMatrix(m_row, m_col);
     identityMatrix.SetIdentity();
-    
+
     Matrix<T> v(m_row, 1);
-    for (int i = 0; i < m_row; i++) {
+    for (int i = 0; i < m_row; i++)
+    {
         v[i][0] = static_cast<T>(static_cast<T>(myDistribution(myRandomGenerator)));
     }
     Matrix<T> v1(m_row, 1);
-    for (int i = 0; i < max_itr; i++) {
+    for (int i = 0; i < max_itr; i++)
+    {
         v1 = inputMatrix * v;
         v1 = v1.normalized();
         v = v1;
     }
     T cumulativeSum = static_cast<T>(0.0);
-    for (int i = 1; i < m_row; i++) {
+    for (int i = 1; i < m_row; i++)
+    {
         cumulativeSum += inputMatrix[0][i] * v1[i][0];
     }
     eigenvalue = (cumulativeSum / v1[0][0]) + inputMatrix[0][0];
     return pair<T, Matrix<T>>(eigenvalue, v1);
+}
+
+// learn from: https://stackoverflow.com/questions/26681713/convert-mat-to-array-vector-in-opencv
+template <typename T>
+Matrix<T> Matrix<T>::fromOpenCV(const cv::Mat &cvMat)
+{
+    int row = cvMat.rows;
+    int col = cvMat.cols;
+    Matrix<T> result(row, col);
+    cv::MatConstIterator_<T> it = cvMat.begin<T>(), it_end = cvMat.end<T>();
+    vector<T> array;
+    if (cvMat.isContinuous())
+    {
+        array.assign((T *)cvMat.data, (T *)cvMat.data + cvMat.total() * cvMat.channels());
+    }
+    else
+    {
+        for (int i = 0; i < cvMat.rows; ++i)
+        {
+            array.insert(array.end(), cvMat.ptr<T>(i), cvMat.ptr<T>(i) + cvMat.cols * cvMat.channels());
+        }
+    }
+    int cnt = 0;
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            result[i][j] = array[cnt++];
+        }
+    }
+    return result;
+}
+
+template <typename T>
+T** Matrix<T>::toArray() {
+    T** array = new T*[m_row];
+    for (int i = 0; i < m_row; i++) {
+        array[i] = new T[m_col];
+    }
+    for (int i = 0; i < m_row; i++) {
+        for (int j = 0; j < m_col; j++) {
+            array[i][j] = (*this)[i][j];
+        }
+    }
+    return array;
+}
+
+template <typename T>
+cv::Mat* Matrix<T>::toOpenCVMat(int type) {
+    cv::Mat* cvMat = new cv::Mat(m_row, m_col, type);
+    for (int i = 0; i < m_row; i++) {
+        for (int j = 0; j < m_col; j++) {
+            (*cvMat).at<T>(i, j) = (*this)[i][j];
+        }
+    }
+    return cvMat;
 }

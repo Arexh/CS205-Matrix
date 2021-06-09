@@ -1,3 +1,4 @@
+#include <opencv2/opencv.hpp>
 #include "gtest/gtest.h"
 #include "Matrix.h"
 #include <complex>
@@ -341,4 +342,90 @@ TEST(MatrixTest, QR_decomposition)
                       {2.866445996919499, 7.125441061546031, 4.53141730712106, 4.297092147605687, 2.5126585000174146}});
     auto dResult = d.QR_decomposition();
     ASSERT_TRUE((dResult.first * dResult.second) == d);
+}
+
+TEST(MatrixTest, From_OpenCV_Mat)
+{
+    // 6 x 2 zeros matrix
+    {
+        const int aRow = 6, aCol = 2;
+        cv::Mat a = cv::Mat::zeros(aRow, aCol, CV_8UC1);
+        Matrix<uchar> aMatix = Matrix<uchar>::fromOpenCV(a);
+        ASSERT_EQ(aMatix.m_row, aRow);
+        ASSERT_EQ(aMatix.m_col, aCol);
+        for (int i = 0; i < aRow; i++) {
+            for (int j = 0; j < aCol; j++) {
+                ASSERT_EQ(aMatix[i][j], a.at<uchar>(i, j));
+                ASSERT_EQ(aMatix[i][j], 0);
+            }
+        }
+    }
+    // 4 x 4 ones matrix
+    {
+        const int aRow = 4, aCol = 4;
+        cv::Mat a = cv::Mat::ones(aRow, aCol, CV_8UC1);
+        Matrix<uchar> aMatix = Matrix<uchar>::fromOpenCV(a);
+        ASSERT_EQ(aMatix.m_row, aRow);
+        ASSERT_EQ(aMatix.m_col, aCol);
+        for (int i = 0; i < aRow; i++) {
+            for (int j = 0; j < aCol; j++) {
+                ASSERT_EQ(aMatix[i][j], a.at<uchar>(i, j));
+                ASSERT_EQ(aMatix[i][j], 1);
+            }
+        }
+    }
+    // 10 x 10 float random value matrix
+    {
+        const int aRow = 10, aCol = 10;
+        double low = -500.0;
+        double high = +500.0;
+        cv::Mat a = cv::Mat(aRow, aCol, CV_32F);
+        randu(a, cv::Scalar(low), cv::Scalar(high));
+        Matrix<float> aMatix = Matrix<float>::fromOpenCV(a);
+        ASSERT_EQ(aMatix.m_row, aRow);
+        ASSERT_EQ(aMatix.m_col, aCol);
+        for (int i = 0; i < aRow; i++) {
+            for (int j = 0; j < aCol; j++) {
+                ASSERT_EQ(aMatix[i][j], a.at<float>(i, j));
+            }
+        }
+    }
+}
+
+TEST(MatrixTest, To_OpenCV_Mat)
+{
+    // 5 x 10 int matrix
+    {
+        const int aRow = 5, aCol = 10;
+        Matrix<int> aMatrix(aRow, aCol);
+        int cnt = 0;
+        for (int i = 0; i < aRow; i++) {
+            for (int j = 0; j < aCol; j++) {
+                aMatrix[i][j] = cnt++;
+            }
+        }
+        cv::Mat* cvMat = aMatrix.toOpenCVMat(CV_32S);
+        Matrix<int> bMatrix = Matrix<int>::fromOpenCV(*cvMat);
+        for (int i = 0; i < aRow; i++) {
+            for (int j = 0; j < aCol; j++) {
+                ASSERT_EQ(aMatrix[i][j], bMatrix[i][j]);
+            }
+        }
+    }
+    // 20 x 10 float random value matrix
+    {
+        const int aRow = 20, aCol = 10;
+        double low = -500.0;
+        double high = +500.0;
+        cv::Mat a = cv::Mat(aRow, aCol, CV_32F);
+        randu(a, cv::Scalar(low), cv::Scalar(high));
+        Matrix<float> aMatrix = Matrix<float>::fromOpenCV(a);
+        cv::Mat* cvMat = aMatrix.toOpenCVMat(CV_32S);
+        Matrix<float> bMatrix = Matrix<float>::fromOpenCV(*cvMat);
+        for (int i = 0; i < aRow; i++) {
+            for (int j = 0; j < aCol; j++) {
+                ASSERT_EQ(aMatrix[i][j], bMatrix[i][j]);
+            }
+        }
+    }
 }
