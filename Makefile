@@ -9,7 +9,7 @@ main:
 	./build/main
 
 .PHONY: test
-test:
+test: compile
 	cd build && ctest
 
 clean:

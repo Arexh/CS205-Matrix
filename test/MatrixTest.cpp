@@ -5,6 +5,17 @@
 
 using namespace std;
 
+template <typename T>
+void assertMatrixEqual(const Matrix<T>& one, const Matrix<T>& two) {
+    ASSERT_EQ(one.m_row, two.m_row);
+    ASSERT_EQ(one.m_col, two.m_col);
+    for (int i = 0; i < one.m_row; i++) {
+        for (int j = 0; j < one.m_col; j++) {
+            ASSERT_EQ(one[i][j], two[i][j]);
+        }
+    }
+}
+
 TEST(MatrixTest, MatrixAdd)
 {
     Matrix<int> a({{1, 2, 3, 4},
@@ -427,5 +438,63 @@ TEST(MatrixTest, To_OpenCV_Mat)
                 ASSERT_EQ(aMatrix[i][j], bMatrix[i][j]);
             }
         }
+    }
+}
+
+TEST(MatrixTest, conv2D)
+{
+    Matrix<int> inputDim4({
+        {5, 7, 1, 2},
+        {4, 3, 9, 0},
+        {8, 7, 6, 1},
+        {4, 2, 0, 7}
+    });
+    Matrix<int> kernelDim3({
+        {1, 0, 1},
+        {1, 1, 1},
+        {2, 1, 0}
+    });
+    // 4 x 4 input, 3 x 3 kernel, 1 stride, valid
+    {
+        
+        Matrix<int> *result = Matrix<int>::conv2D(inputDim4, kernelDim3, 1, false);
+        Matrix<int> expected({
+            {45, 41},
+            {44, 21}
+        });
+        assertMatrixEqual(*result, expected);
+    }
+    // 4 x 4 input, 3 x 3 kernel, 1 stride, same
+    {
+        
+        Matrix<int> *result = Matrix<int>::conv2D(inputDim4, kernelDim3, 1, true);
+        Matrix<int> expected({
+            {16, 24, 25, 21},
+            {22, 45, 41, 23},
+            {22, 44, 21, 23},
+            {13, 20, 17, 13}
+        });
+        assertMatrixEqual(*result, expected);
+    }
+    // 4 x 4 input, 3 x 3 kernel, 2 stride, valid
+    {
+        
+        Matrix<int> *result = Matrix<int>::conv2D(inputDim4, kernelDim3, 2, false);
+        vector<vector<int>> v {
+            {45}
+        };
+        Matrix<int> expected(v);
+        assertMatrixEqual(*result, expected);
+    }
+    // 4 x 4 input, 3 x 3 kernel, 2 stride, same
+    {
+        
+        Matrix<int> *result = Matrix<int>::conv2D(inputDim4, kernelDim3, 2, true);
+        vector<vector<int>> v {
+            {16, 25},
+            {22, 21}
+        };
+        Matrix<int> expected(v);
+        assertMatrixEqual(*result, expected);
     }
 }

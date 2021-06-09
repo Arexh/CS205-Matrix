@@ -89,9 +89,11 @@ public:
     bool isUpperTri();
     bool isCloseEnough(T a, T b, double threshold = EQ_THRESHOLD);
     pair<T, Matrix<T>> eigenValueAndEigenVector(int max_itr = 10e3);
-    static Matrix<T> fromOpenCV(const cv::Mat &cvMat);
     T** toArray();
     cv::Mat* toOpenCVMat(int type);
+
+    static Matrix<T> fromOpenCV(const cv::Mat &cvMat);
+    static Matrix<T> *conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride=1, bool same_padding=true);
 
 private:
     void printMatrixInt();
@@ -1318,4 +1320,38 @@ cv::Mat* Matrix<T>::toOpenCVMat(int type) {
         }
     }
     return cvMat;
+}
+
+template <typename T>
+Matrix<T>* Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride, bool same_padding) {
+    Matrix<T> inputMatrix;
+    int padding = 0;
+    if (same_padding) {
+        padding = 1;
+    }
+    inputMatrix = Matrix<T>(input.m_row + padding * 2, input.m_col + padding * 2);
+    for (int i = 0; i < input.m_row; i++) {
+        for (int j = 0; j < input.m_col; j++) {
+            inputMatrix[i + padding][j + padding] = input[i][j];
+        }
+    }
+    if (padding == 1) {
+        for (int i = 0; i < inputMatrix.m_row; i++) inputMatrix[i][0] = inputMatrix[i][inputMatrix.m_col - 1] = 0;
+        for (int i = 0; i < inputMatrix.m_col; i++) inputMatrix[0][i] = inputMatrix[inputMatrix.m_row - 1][i] = 0;
+    }
+    int rowDim = ((input.m_row + 2 * padding - kernel.m_row) / stride) + 1;
+    int colDim = ((input.m_col + 2 * padding - kernel.m_col) / stride) + 1;
+    Matrix<T> *result = new Matrix<T>(rowDim, colDim);
+    for (int i = 0; i < rowDim; i++) {
+        for (int j = 0; j < colDim; j++) {
+            T cumulativeSum = static_cast<T>(0);
+            for (int x = 0; x < kernel.m_row; x++) {
+                for (int y = 0; y < kernel.m_col; y++) {
+                    cumulativeSum += kernel[x][y] * inputMatrix[x + i * stride][y + j * stride];
+                }
+            }
+            (*result)[i][j] = cumulativeSum;
+        }
+    }
+    return result;
 }
