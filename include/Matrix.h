@@ -80,7 +80,7 @@ public:
 
     Matrix<T> conju();
 
-    Matrix<T> dot(const Matrix<T> &m1) const;
+    Matrix<T> & dot(const Matrix<T> &m1) const;
     Matrix<T> cross(const Matrix<T> &m1) const;
     Matrix<T> Transposition() const;
     Matrix<T> toTransposition();
@@ -318,7 +318,7 @@ bool Matrix<T>::is_square() const
 template <typename T>
 bool Matrix<T>::is_zero() const
 {
-    return determinant() == 0;
+    return determinant() ==  static_cast<T>(0);
 }
 
 template <typename T>
@@ -524,7 +524,7 @@ Matrix<T> Matrix<T>::conju()
 }
 
 template <typename T>
-Matrix<T> Matrix<T>::dot(const Matrix<T> &m1) const
+Matrix<T> & Matrix<T>::dot(const Matrix<T> &m1) const
 {
     return (*this) ^ m1;
 }
