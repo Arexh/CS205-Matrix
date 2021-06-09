@@ -38,7 +38,7 @@ public:
     bool is_square() const;
     bool is_zero() const;
 
-    Matrix<T>* operator=(const Matrix<T> &m1);
+    Matrix<T> operator=(const Matrix<T> &m1);
 
     vector<T>& operator[](int idx) const;
 
@@ -261,7 +261,7 @@ vector<T>& Matrix<T>::operator[](int idx) const
 }
 
 template <typename T>
-Matrix<T>* Matrix<T>::operator=(const Matrix<T> &m1)
+Matrix<T> Matrix<T>::operator=(const Matrix<T> &m1)
 {
     if (this != &m1) {
         m_row = m1.m_row;
@@ -270,7 +270,7 @@ Matrix<T>* Matrix<T>::operator=(const Matrix<T> &m1)
         if (data)
             delete data;
         
-        data = new vector<vector<T>>();
+        data = new vector<vector<T>>(m1.m_row);
 
         typename vector<vector<T>>::iterator iter;
         for (iter = data->begin(); iter < data->end(); iter++)
@@ -280,7 +280,7 @@ Matrix<T>* Matrix<T>::operator=(const Matrix<T> &m1)
             for (int j = 0; j < m1.m_col; j++)
                 (*data)[i][j] = m1[i][j];
     }
-    return this;
+    return (*this);
 }
 
 template <typename T>
@@ -396,11 +396,11 @@ Matrix<T> operator-(const T& l, const Matrix<T>& r)
 template <typename T>
 Matrix<T> operator*(const Matrix<T>& l, const Matrix<T>& r)
 {
-    Matrix<T> result(l.m_row, l.m_col);
+    Matrix<T> result(l.m_row, r.m_col);
 
     for (int i = 0; i < result.m_row; i++)
         for (int j = 0; j < result.m_col; j++)
-            for (int k = 0; k < result.m_col; k++)
+            for (int k = 0; k < l.m_col; k++)
                 result[i][j] += l[i][k] * r[k][j];
 
     return result;
@@ -540,8 +540,8 @@ Matrix<T> Matrix<T>::Transposition() const
 {
     Matrix<T> result(m_col, m_row);
 
-    for (int i = 0; i < m_col; i++)
-        for (int j = 0; j < m_row; j++)
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
             result[i][j] = (*data)[j][i];
 
     return result;
@@ -550,11 +550,11 @@ Matrix<T> Matrix<T>::Transposition() const
 template <typename T>
 Matrix<T> Matrix<T>::toTransposition()
 {
-    Matrix<T> result = Transposition();
+    // Matrix<T> result = Transposition();
     
-    for (int i = 0; i < m_row; i++)
-        for (int j = 0; j < m_col; j++)
-            (*data)[i][j] = result[i][j];
+    // for (int i = 0; i < m_row; i++)
+    //     for (int j = 0; j < m_col; j++)
+    //         (*data)[i][j] = result[i][j];
 
     return (*this);
 }
