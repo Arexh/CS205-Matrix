@@ -540,8 +540,8 @@ Matrix<T> Matrix<T>::Transposition() const
 {
     Matrix<T> result(m_col, m_row);
 
-    for (int i = 0; i < m_row; i++)
-        for (int j = 0; j < m_col; j++)
+    for (int i = 0; i < m_col; i++)
+        for (int j = 0; j < m_row; j++)
             result[i][j] = (*data)[j][i];
 
     return result;
@@ -1085,19 +1085,19 @@ pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition() const
     }
 
     Matrix<T> qMat = plist[0];
-    // for (int i = 1; i < m_row - 1; i++)
-    // {
-    //     Matrix<T> temp3 = plist[i].Transposition();
-    //     qMat = qMat * temp3;
-    // }
+    for (int i = 1; i < m_row - 1; i++)
+    {
+        Matrix<T> temp3 = plist[i].Transposition();
+        qMat = qMat * temp3;
+    }
 
     int numElements = plist.size();
     Matrix<T> rMat = plist[numElements - 1];
-    // for (int i = (numElements - 2); i >= 0; i--)
-    // {
-    //     rMat = rMat * plist[i];
-    // }
-    // rMat = rMat * (*this);
+    for (int i = (numElements - 2); i >= 0; i--)
+    {
+        rMat = rMat * plist[i];
+    }
+    rMat = rMat * (*this);
 
     return pair<Matrix<T>, Matrix<T>>(qMat, rMat);
 }
