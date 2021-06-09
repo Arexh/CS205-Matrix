@@ -14,80 +14,116 @@ using std::setw;
 
 const double EQ_THRESHOLD = 1e-10;
 
-template <class T>
-class Matrix : public std::vector<std::vector<T>>
+template <typename T>
+class Matrix
 {
+private:
+    vector<vector<T>>* data;
 public:
     int m_row;
     int m_col;
-    explicit Matrix() : Matrix(0, 0){};
+
+    Matrix() : Matrix(0, 0){};
     Matrix(int row, int col);
-    Matrix(vector<vector<T>> arr);
-    Matrix(const Matrix &a);
-    Matrix<T> operator=(const Matrix<T> &m1); //深拷贝
-    bool operator==(Matrix &m1);              //矩阵相同时true
-    bool operator!=(Matrix &m1);              //矩阵不相同时true
-    bool is_size_equal(const Matrix &m1);
-    bool is_square();
-    bool is_zero();
-    Matrix<T> operator+(Matrix &m1);
-    Matrix<T> operator-(Matrix<T> &m1);
-    Matrix<T> operator*(Matrix<T> &m1);
-    Matrix<T> operator*(T a);
-    Matrix<T> operator/(double a);
+    Matrix(int row, int col, const T* data);
+    Matrix(const vector<vector<T>>& arr);
+    Matrix(const Matrix<T> &a);
 
-    Matrix<T> operator+=(Matrix &m1);
-    Matrix<T> operator-=(Matrix &m1);
-    Matrix<T> operator*=(Matrix &m1);
-    Matrix<T> operator*=(int a);
-    Matrix<T> operator/=(int a);
-    Matrix<T> operator^(Matrix &m1); //矩阵按位置相乘
-    Matrix<T> conju();               //取共轭矩阵
+    ~Matrix();
 
-    Matrix<T> dot(Matrix &m1);
-    Matrix<T> cross(Matrix &m1);
-    Matrix<T> Transposition();
+    bool operator==(const Matrix<T> &m1) const;
+    bool operator!=(const Matrix<T> &m1) const;
+
+    bool is_size_equal(const Matrix<T> &m1) const;
+    bool is_square() const;
+    bool is_zero() const;
+
+    Matrix<T>* operator=(const Matrix<T> &m1);
+
+    vector<T>& operator[](int idx) const;
+
+    template <typename U>
+    friend Matrix<U> operator+(const Matrix<U>& l, const Matrix<U>& r);
+    template <typename U>
+    friend Matrix<U> operator+(const U& l, const Matrix<U>& r);
+    template <typename U>
+    friend Matrix<U> operator+(const Matrix<U>& l, const U& r);
+
+    template <typename U>
+    friend Matrix<U> operator-(const Matrix<U>& l, const Matrix<U>& r);
+    template <typename U>
+    friend Matrix<U> operator-(const U& l, const Matrix<U>& r);
+    template <typename U>
+    friend Matrix<U> operator-(const Matrix<U>& l, const U& r);
+
+    template <typename U>
+    friend Matrix<U> operator*(const Matrix<U>& l, const Matrix<U>& r);
+    template <typename U>
+    friend Matrix<U> operator*(const U& l, const Matrix<U>& r);
+    template <typename U>
+    friend Matrix<U> operator*(const Matrix<U>& l, const U& r);
+    
+    template <typename U>
+    friend Matrix<U> operator/(const U& l, const Matrix<U>& r);
+    template <typename U>
+    friend Matrix<U> operator/(const Matrix<U>& l, const U& r);
+    template <typename U>
+    friend Matrix<U> operator^(const Matrix<U>& l, const Matrix<U>& r);
+
+    Matrix<T> operator-() const;
+
+    Matrix<T> operator+=(const Matrix<T> &m1);
+    Matrix<T> operator-=(const Matrix<T> &m1);
+    Matrix<T> operator*=(const Matrix<T> &m1);
+    Matrix<T> operator*=(const T& a);
+    Matrix<T> operator/=(const T& a);
+
+    Matrix<T> conju();
+
+    Matrix<T> dot(const Matrix<T> &m1) const;
+    Matrix<T> cross(const Matrix<T> &m1) const;
+    Matrix<T> Transposition() const;
     Matrix<T> toTransposition();
 
-    T determinant();
-    T all_sort(int a[], int now, int length, T &determinant);
+    T determinant() const;
+    T trace() const;
 
-    T trace();
-    Matrix<T> LU_factor_U();
-    Matrix<T> LU_factor_L();
-    Matrix<T> LDU_factor_L();
-    Matrix<T> LDU_factor_D();
-    Matrix<T> LDU_factor_U();
+    Matrix<T> LU_factor_U() const;
+    Matrix<T> LU_factor_L() const;
+    Matrix<T> LDU_factor_L() const;
+    Matrix<T> LDU_factor_D() const;
+    Matrix<T> LDU_factor_U() const;
 
-    Matrix<T> Inverse();
-    Matrix<T> reshape(int r, int c);
-    Matrix<T> slice(int r1, int r2, int c1, int c2);
+    Matrix<T> Inverse() const;
+    Matrix<T> reshape(int r, int c) const;
+    Matrix<T> slice(int r1, int r2, int c1, int c2) const;
 
-    T sum();
-    T mean();
-    T max();
-    T min();
-    T row_max(int row);
-    T row_min(int row);
-    T row_sum(int row);
-    T row_mean(int row);
+    T sum() const;
+    T mean() const;
+    T max() const;
+    T min() const;
+    T row_max(int row) const;
+    T row_min(int row) const;
+    T row_sum(int row) const;
+    T row_mean(int row) const;
 
-    T col_max(int col);
-    T col_min(int col);
-    T col_sum(int col);
-    T col_mean(int col);
+    T col_max(int col) const;
+    T col_min(int col) const;
+    T col_sum(int col) const;
+    T col_mean(int col) const;
 
-    void printMatrix();
-    pair<Matrix<T>, Matrix<T>> QR_decomposition();
-    T norm();
-    Matrix<T> normalized();
+    void printMatrix() const;
+
+    pair<Matrix<T>, Matrix<T>> QR_decomposition() const;
+    T norm() const;
+    Matrix<T> normalized() const;
     void SetIdentity();
 
     T *eigenvalues(int max_iter = 10e3);
     Matrix<T> eigenvector(T eigenvalue, int max_iter = 10e3);
     Matrix<T> *eigenvectors(int max_itr = 10e3);
     bool isUpperTri();
-    bool isCloseEnough(T a, T b, double threshold = EQ_THRESHOLD);
+    static bool isCloseEnough(T a, T b, double threshold = EQ_THRESHOLD);
     pair<T, Matrix<T>> eigenValueAndEigenVector(int max_itr = 10e3);
     T** toArray();
     cv::Mat* toOpenCVMat(int type);
@@ -96,8 +132,17 @@ public:
     static Matrix<T> *conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride=1, bool same_padding=true);
 
 private:
-    void printMatrixInt();
+    T all_sort(int a[], int now, int length, T &determinant) const;
+    void printMatrixInt() const;
 };
+
+template <typename T>
+Matrix<T>::~Matrix()
+{
+    if (data)
+        delete data;
+    data = nullptr;
+}
 
 template <typename T>
 Matrix<T>::Matrix(int row, int col)
@@ -105,32 +150,35 @@ Matrix<T>::Matrix(int row, int col)
     if (row <= 0 || col <= 0)
     {
         cout << "You input negative row/col num" << endl;
-        this->m_row = 0;
-        this->m_col = 0;
+        m_row = 0;
+        m_col = 0;
+        data = nullptr;
     }
     else
     {
-        this->m_row = row;
-        this->m_col = col;
-        this->resize(row);
-        typename std::vector<std::vector<T>>::iterator iter;
-        for (iter = this->begin(); iter < this->end(); iter++)
+        m_row = row;
+        m_col = col;
+        data = new vector<vector<T>>();
+        data->resize(row);
+        typename vector<vector<T>>::iterator iter;
+        for (iter = data->begin(); iter < data->end(); iter++)
         {
             iter->resize(col);
         }
     }
 }
 
-template <class T>
-Matrix<T>::Matrix(vector<vector<T>> arr)
+template <typename T>
+Matrix<T>::Matrix(const vector<vector<T>>& arr)
 {
     int row = arr.size();
     int col = arr[0].size();
-    this->m_row = row;
-    this->m_col = col;
-    this->resize(row);
-    typename std::vector<std::vector<T>>::iterator iter;
-    for (iter = this->begin(); iter < this->end(); iter++)
+    m_row = row;
+    m_col = col;
+    data = new vector<vector<T>>();
+    data->resize(row);
+    typename vector<vector<T>>::iterator iter;
+    for (iter = data->begin(); iter < data->end(); iter++)
     {
         iter->resize(col);
     }
@@ -138,19 +186,20 @@ Matrix<T>::Matrix(vector<vector<T>> arr)
     {
         for (int j = 0; j < col; j++)
         {
-            (*this)[i][j] = arr[i][j];
+            (*data)[i][j] = arr[i][j];
         }
     }
 }
 
-template <class T>
-Matrix<T>::Matrix(const Matrix &a)
+template <typename T>
+Matrix<T>::Matrix(const Matrix<T> &a)
 {
-    this->m_row = a.m_row;
-    this->m_col = a.m_col;
-    this->resize(m_row);
-    typename std::vector<std::vector<T>>::iterator iter;
-    for (iter = this->begin(); iter < this->end(); iter++)
+    m_row = a.m_row;
+    m_col = a.m_col;
+    data = new vector<vector<T>>();
+    data->resize(m_row);
+    typename vector<vector<T>>::iterator iter;
+    for (iter = data->begin(); iter < data->end(); iter++)
     {
         iter->resize(m_col);
     }
@@ -158,35 +207,35 @@ Matrix<T>::Matrix(const Matrix &a)
     {
         for (int j = 0; j < a.m_col; j++)
         {
-            (*this)[i][j] = a[i][j];
+            (*data)[i][j] = (*a.data)[i][j];
         }
     }
 }
 
-template <class T>
-void Matrix<T>::printMatrix()
+template <typename T>
+void Matrix<T>::printMatrix() const
 {
     printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
     for (int i = 0; i < m_row; i++)
     {
         for (int j = 0; j < m_col; j++)
         {
-            cout << std::setw(7) << (*this)[i][j] << " ";
+            cout << std::setw(7) << (*data)[i][j] << " ";
         }
         printf("\n");
     }
     printf("---------------------------------\n");
 }
 
-template <class T>
-void Matrix<T>::printMatrixInt()
+template <typename T>
+void Matrix<T>::printMatrixInt() const
 {
     printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
     for (int i = 0; i < m_row; i++)
     {
         for (int j = 0; j < m_col; j++)
         {
-            cout << setprecision(2) << std::setw(7) << ((int)(*this)[i][j]) << " ";
+            cout << setprecision(2) << std::setw(7) << ((int) (*data)[i][j]) << " ";
         }
         printf("\n");
     }
@@ -194,394 +243,343 @@ void Matrix<T>::printMatrixInt()
 }
 
 template <>
-void Matrix<char>::printMatrix()
+void Matrix<char>::printMatrix() const
 {
     printMatrixInt();
 }
 
 template <>
-void Matrix<uchar>::printMatrix()
+void Matrix<uchar>::printMatrix() const
 {
     printMatrixInt();
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator=(const Matrix<T> &m1)
+template <typename T>
+vector<T>& Matrix<T>::operator[](int idx) const
 {
-    this->clear();
-    this->resize(m1.m_row);
-    this->m_col = m1.m_col;
-    this->m_row = m1.m_row;
-    typename std::vector<std::vector<T>>::iterator iter;
-    for (iter = this->begin(); iter < this->end(); iter++)
-    {
-        iter->resize(m1.m_col);
-    }
-
-    int i, j;
-    for (i = 0; i < m1.m_row; i++)
-    {
-        for (j = 0; j < m1.m_col; j++)
-        {
-            (*this)[i][j] = m1[i][j];
-        }
-    }
-    return (*this);
+    return (*data)[idx];
 }
 
-template <class T>
-bool Matrix<T>::operator==(Matrix &m1)
+template <typename T>
+Matrix<T>* Matrix<T>::operator=(const Matrix<T> &m1)
 {
-    if (this->m_row != m1.m_row || this->m_col != m1.m_col)
+    if (this != &m1) {
+        m_row = m1.m_row;
+        m_col = m1.m_col;
+
+        if (data)
+            delete data;
+        
+        data = new vector<vector<T>>();
+
+        typename vector<vector<T>>::iterator iter;
+        for (iter = data->begin(); iter < data->end(); iter++)
+            iter->resize(m1.m_col);
+
+        for (int i = 0; i < m1.m_row; i++)
+            for (int j = 0; j < m1.m_col; j++)
+                (*data)[i][j] = m1[i][j];
+    }
+    return this;
+}
+
+template <typename T>
+bool Matrix<T>::operator==(const Matrix<T> &m1) const
+{
+    if (m_row != m1.m_row || m_col != m1.m_col)
         return false;
+
     for (int i = 0; i < m_row; i++)
-    {
         for (int j = 0; j < m_col; j++)
-        {
-            if (!isCloseEnough((*this)[i][j], m1[i][j]))
+            if (!isCloseEnough((*data)[i][j], m1[i][j]))
                 return false;
-        }
-    }
+
     return true;
 }
 
-template <class T>
-bool Matrix<T>::operator!=(Matrix &m1)
+template <typename T>
+bool Matrix<T>::operator!=(const Matrix<T> &m1) const
 {
-    int i = 0, j = 0;
-    bool isSame = false;
-    if (this->m_row != m1.m_row || this->m_col != m1.m_col)
-    {
-        isSame = true;
-    }
-
-    while (!isSame && i < this->m_row)
-    {
-        while (j < this->m_col)
-        {
-            if ((*this)[i][j] != m1[i][j])
-            {
-                isSame = true;
-                break;
-            }
-            j++;
-        }
-        i++;
-    }
-    return isSame;
+    return !(*this == m1);
 }
 
-template <class T>
-bool Matrix<T>::is_size_equal(const Matrix &m1)
+template <typename T>
+bool Matrix<T>::is_size_equal(const Matrix<T> &m1) const
 {
-    if (this->m_row == m1.m_row && this->m_col == m1.m_col)
-        return true;
-    else
-        return false;
+    return m_row == m1.m_row && m_col == m1.m_col;
 }
 
-template <class T>
-bool Matrix<T>::is_square()
+template <typename T>
+bool Matrix<T>::is_square() const
 {
-    if (this->m_row == this->m_col)
-        return true;
-    else
-        return false;
+    return m_row == m_col;
 }
 
-template <class T>
-bool Matrix<T>::is_zero()
+template <typename T>
+bool Matrix<T>::is_zero() const
 {
-    T tmp;
-    tmp = 0;
-    if (this->determinant() = tmp)
-        return true;
-    else
-        return false;
+    return determinant() == 0;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator+(Matrix &m1)
+template <typename T>
+Matrix<T> Matrix<T>::operator-() const
 {
-    assert(is_size_equal(m1) && !this->empty());
-    Matrix<T> tmp(this->m_row, this->m_col);
-    int i, j;
-    for (i = 0; i < m_row; i++)
-    {
-        for (j = 0; j < m_col; j++)
-        {
-            tmp[i][j] = (*this)[i][j] + m1[i][j];
-        }
-    }
-    return tmp;
+    Matrix<T> result(*this);
+    
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            result[i][j] = -result[i][j];
+    
+    return result;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator-(Matrix<T> &m1)
+template <typename T>
+Matrix<T> operator+(const Matrix<T>& l, const Matrix<T>& r)
 {
-    assert(is_size_equal(m1) && !this->empty());
-    Matrix<T> tmp(this->m_row, this->m_col);
-    int i, j;
-    for (i = 0; i < m_row; i++)
-    {
-        for (j = 0; j < m_col; j++)
-        {
-            tmp[i][j] = (*this)[i][j] - m1[i][j];
-        }
-    }
-    return tmp;
+    Matrix<T> result(l);
+
+    for (int i = 0; i < l.m_row; i++)
+        for (int j = 0; j < l.m_col; j++)
+            result[i][j] += r[i][j];
+
+    return result;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator*(Matrix<T> &m1)
+template <typename T>
+Matrix<T> operator+(const Matrix<T>& l, const T& r)
 {
-    assert(this->m_col == m1.m_row && !this->empty());
-    Matrix<T> tmp(this->m_row, m1.m_col);
-    int i, j, k;
-    for (i = 0; i < tmp.m_row; i++)
-    {
-        for (j = 0; j < tmp.m_col; j++)
-        {
-            for (k = 0; k < this->m_col; k++)
-            {
-                tmp[i][j] += (*this)[i][k] * m1[k][j];
-            }
-        }
-    }
-    return tmp;
+    Matrix<T> result(l);
+
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
+            result[i][j] += r;
+
+    return result;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator*(T a)
+template <typename T>
+Matrix<T> operator+(const T& l, const Matrix<T>& r)
 {
-    assert(!this->empty());
-    Matrix<T> tmp(this->m_row, this->m_col);
-    int i, j;
-    for (i = 0; i < this->m_row; i++)
-    {
-        for (j = 0; j < this->m_col; j++)
-        {
-            tmp[i][j] = (*this)[i][j] * a;
-        }
-    }
-    return tmp;
+    return r + l;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator/(double a)
+template <typename T>
+Matrix<T> operator-(const Matrix<T>& l, const Matrix<T>& r)
 {
-    assert(!this->empty());
-    Matrix<T> tmp(this->m_row, this->m_col);
-    int i, j;
-    for (i = 0; i < this->m_row; i++)
-    {
-        for (j = 0; j < this->m_col; j++)
-        {
-            tmp[i][j] = (*this)[i][j] / a;
-        }
-    }
-    return tmp;
+    Matrix<T> result(l);
+
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
+            result[i][j] -= r[i][j];
+
+    return result;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator+=(Matrix &m1)
+template <typename T>
+Matrix<T> operator-(const Matrix<T>& l, const T& r)
 {
-    assert(is_size_equal(m1) && !this->empty());
-    for (int i = 0; i < this->m_row; i++)
-    {
-        for (int j = 0; j < this->m_col; j++)
-        {
-            (*this)[i][j] += m1[i][j];
-        }
-    }
+    Matrix<T> result(l);
+
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
+            result[i][j] -= r;
+
+    return result;
+}
+
+template <typename T>
+Matrix<T> operator-(const T& l, const Matrix<T>& r)
+{
+    return r.Matrix<T>::operator-() + l;
+}
+
+template <typename T>
+Matrix<T> operator*(const Matrix<T>& l, const Matrix<T>& r)
+{
+    Matrix<T> result(l.m_row, l.m_col);
+
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
+            for (int k = 0; k < result.m_col; k++)
+                result[i][j] += l[i][k] * r[k][j];
+
+    return result;
+}
+
+template <typename T>
+Matrix<T> operator*(const Matrix<T>& l, const T& r)
+{
+    Matrix<T> result(l);
+
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
+            result[i][j] *= r;
+
+    return result;
+}
+
+template <typename T>
+Matrix<T> operator*(const T& l, const Matrix<T>& r)
+{
+    return r * l;
+}
+
+template <typename T>
+Matrix<T> operator/(const Matrix<T>& l, const T& r)
+{
+    Matrix<T> result(l);
+
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
+            result[i][j] /= r;
+
+    return result;
+}
+
+template <typename T>
+Matrix<T> operator/(const T& l, const Matrix<T>& r)
+{
+    Matrix<T> result(r);
+
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
+            result[i][j] = l / result[i][j];
+
+    return result;
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::operator+=(const Matrix<T>& m1)
+{
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            (*data)[i][j] += m1[i][j];
+
     return (*this);
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator-=(Matrix &m1)
+template <typename T>
+Matrix<T> Matrix<T>::operator-=(const Matrix<T> &m1)
 {
-    assert(is_size_equal(m1) && !this->empty());
-    for (int i = 0; i < this->m_row; i++)
-    {
-        for (int j = 0; j < this->m_col; j++)
-        {
-            (*this)[i][j] -= m1[i][j];
-        }
-    }
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            (*data)[i][j] -= m1[i][j];
+
     return (*this);
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator*=(Matrix &m1)
+template <typename T>
+Matrix<T> Matrix<T>::operator*=(const Matrix<T> &m1)
 {
-    assert(this->m_col == m1.m_row && !this->empty());
-    Matrix<T> tmp(*this);
-    this->clear();
-    this->resize(m_row);
-    this->m_col = m1.m_col;
-    typename std::vector<std::vector<T>>::iterator iter;
-    for (iter = this->begin(); iter < this->end(); iter++)
-    {
-        iter->resize(m1.m_col);
-    }
-    for (int i = 0; i < this->m_row; i++)
-    {
-        for (int j = 0; j < this->m_col; j++)
-        {
-            for (int k = 0; k < m1.m_row; k++)
-            {
-                (*this)[i][j] += tmp[i][k] * m1[k][j];
-            }
-        }
-    }
+    Matrix<T> result = (*this) * m1;
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            (*data)[i][j] = result[i][j];
+
     return (*this);
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator*=(int a)
+template <typename T>
+Matrix<T> Matrix<T>::operator*=(const T& m1)
 {
-    assert(!this->empty());
-    int i, j;
-    for (i = 0; i < this->m_row; i++)
-    {
-        for (j = 0; j < this->m_col; j++)
-        {
-            (*this)[i][j] = (*this)[i][j] * a;
-        }
-    }
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            (*data)[i][j] *= m1;
+
     return (*this);
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator/=(int a)
+template <typename T>
+Matrix<T> Matrix<T>::operator/=(const T& a)
 {
-    int i, j;
-    for (i = 0; i < this->m_row; i++)
-    {
-        for (j = 0; j < this->m_col; j++)
-        {
-            (*this)[i][j] = (*this)[i][j] / a;
-        }
-    }
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            (*data)[i][j] = (*data)[i][j] / a;
+
     return (*this);
 }
 
-template <class T>
-Matrix<T> Matrix<T>::operator^(Matrix<T> &m1)
+template <typename T>
+Matrix<T> operator^(const Matrix<T> &l, const Matrix<T> &r)
 {
-    assert(is_size_equal(m1) && !this->empty());
-    int i, j;
-    for (i = 0; i < this->m_row; i++)
-    {
-        for (j = 0; j < this->m_col; j++)
-        {
-            (*this)[i][j] *= m1[i][j];
-        }
-    }
-    return (*this);
+    Matrix<T> result(l);
+
+    for (int i = 0; i < result.m_row; i++)
+        for (int j = 0; j < result.m_col; j++)
+            result[i][j] *= r[i][j];
+
+    return result;
 }
 
-template <class T>
+template <typename T>
 Matrix<T> Matrix<T>::conju()
 {
-    assert(!this->empty());
-    Matrix<T> tmp(*this);
-    int i, j;
-    for (i = 0; i < this->m_row; i++)
-        for (j = 0; j < this->m_col; j++)
-        {
-            tmp[i][j] = conj(tmp[i][j]);
-        }
-    return tmp;
-}
-//template< >
-// template<class T >
-// Matrix<complex<T>> Matrix<complex<T>>::operator ~() {
-//     int i, j;
-//     Matrix<Complex<T>> tmp(*this);
-//     for (i = 0; i < tmp.m_row; i++) {
-//         for (j = 0; j < tmp.m_col; j++) {
-//             tmp[i][j] = ~tmp[i][j];
-//         }
-//     }
-//     return tmp;
-// }
+    Matrix<T> result(*this);
 
-template <class T>
-Matrix<T> Matrix<T>::dot(Matrix<T> &m1)
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            result[i][j] = conj(result[i][j]);
+
+    return result;
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::dot(const Matrix<T> &m1) const
 {
     return (*this) ^ m1;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::cross(Matrix<T> &m1)
+template <typename T>
+Matrix<T> Matrix<T>::cross(const Matrix<T> &m1) const
 {
     return (*this) * m1;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::Transposition()
+template <typename T>
+Matrix<T> Matrix<T>::Transposition() const
 {
-    Matrix<T> tmp(this->m_col, this->m_row);
-    int i, j;
-    for (i = 0; i < tmp.m_row; i++)
-    {
-        for (j = 0; j < tmp.m_col; j++)
-        {
-            tmp[i][j] = (*this)[j][i];
-        }
-    }
-    return tmp;
+    Matrix<T> result(m_col, m_row);
+
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            result[i][j] = (*data)[j][i];
+
+    return result;
 }
 
-template <class T>
+template <typename T>
 Matrix<T> Matrix<T>::toTransposition()
 {
-    Matrix<T> tmp(*this);
-    this->clear();
-    this->resize(this->m_col);
-    typename std::vector<std::vector<T>>::iterator iter;
-    for (iter = this->begin(); iter < this->end(); iter++)
-    {
-        iter->resize(this->m_row);
-    }
-    int a = this->m_col;
-    this->m_col = this->m_row;
-    this->m_row = a;
+    Matrix<T> result = Transposition();
+    
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            (*data)[i][j] = result[i][j];
 
-    int i, j;
-    for (i = 0; i < this->m_row; i++)
-    {
-        for (j = 0; j < this->m_col; j++)
-        {
-            (*this)[i][j] = tmp[j][i];
-        }
-    }
     return (*this);
 }
 
-template <class T>
-T Matrix<T>::determinant()
+template <typename T>
+T Matrix<T>::determinant() const
 {
     assert(m_col == m_row);
     int length = m_col, now = 0;
     T d;
     d = 0;
     int *permutation = new int[length];
-    //初始化全排列数组
     for (int i = 0; i < length; i++)
     {
         permutation[i] = i;
     }
 
-    d = this->all_sort(permutation, now, length, d);
+    d = all_sort(permutation, now, length, d);
     delete[] permutation;
 
     return d;
 }
 
-template <class T>
-T Matrix<T>::all_sort(int a[], int now, int length, T &determinant)
+template <typename T>
+T Matrix<T>::all_sort(int a[], int now, int length, T &determinant) const
 {
     if (now == length - 1)
     {
@@ -590,7 +588,7 @@ T Matrix<T>::all_sort(int a[], int now, int length, T &determinant)
         int pow = 0;
         for (int i = 0; i < length; i++)
         {
-            tmp *= (*this)[i][a[i]];
+            tmp *= (*data)[i][a[i]];
         }
 
         for (int i = 1; i < length; i++)
@@ -619,16 +617,16 @@ T Matrix<T>::all_sort(int a[], int now, int length, T &determinant)
     return determinant;
 }
 
-template <class T>
-T Matrix<T>::trace()
+template <typename T>
+T Matrix<T>::trace() const
 {
-    if (this->is_square())
+    if (is_square())
     {
         T trace = static_cast<T>(0);
+
         for (int i = 0; i < m_col; i++)
-        {
-            trace += (*this)[i][i];
-        }
+            trace += (*data)[i][i];
+
         return trace;
     }
     else
@@ -637,8 +635,8 @@ T Matrix<T>::trace()
     }
 }
 
-template <class T>
-Matrix<T> Matrix<T>::LU_factor_U()
+template <typename T>
+Matrix<T> Matrix<T>::LU_factor_U() const
 {
     assert(m_col == m_row);
     int n = m_col;
@@ -663,7 +661,7 @@ Matrix<T> Matrix<T>::LU_factor_U()
         {
             for (int k = 0; k <= i - 1; k++)
                 sum += l[i][k] * u[k][j];
-            u[i][j] = (*this)[i][j] - sum; //计算矩阵U
+            u[i][j] = (*data)[i][j] - sum; //计算矩阵U
             sum = 0;
         }
 
@@ -671,15 +669,15 @@ Matrix<T> Matrix<T>::LU_factor_U()
         {
             for (int k = 0; k <= i - 1; k++)
                 sum += l[x][k] * u[k][i];
-            l[x][i] = ((*this)[x][i] - sum) / u[i][i]; //计算矩阵L
+            l[x][i] = ((*data)[x][i] - sum) / u[i][i]; //计算矩阵L
             sum = 0;
         }
     }
     return u;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::LU_factor_L()
+template <typename T>
+Matrix<T> Matrix<T>::LU_factor_L() const
 {
     assert(m_col == m_row);
     //需要判断行列式是否为0
@@ -705,7 +703,7 @@ Matrix<T> Matrix<T>::LU_factor_L()
         {
             for (int k = 0; k <= i - 1; k++)
                 sum += l[i][k] * u[k][j];
-            u[i][j] = (*this)[i][j] - sum; //计算矩阵U
+            u[i][j] = (*data)[i][j] - sum; //计算矩阵U
             sum = 0;
         }
 
@@ -713,22 +711,22 @@ Matrix<T> Matrix<T>::LU_factor_L()
         {
             for (int k = 0; k <= i - 1; k++)
                 sum += l[x][k] * u[k][i];
-            l[x][i] = ((*this)[x][i] - sum) / u[i][i]; //计算矩阵L
+            l[x][i] = ((*data)[x][i] - sum) / u[i][i]; //计算矩阵L
             sum = 0;
         }
     }
     return l;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::LDU_factor_L()
+template <typename T>
+Matrix<T> Matrix<T>::LDU_factor_L() const
 {
     Matrix<T> l(this->LU_factor_L());
     return l;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::LDU_factor_D()
+template <typename T>
+Matrix<T> Matrix<T>::LDU_factor_D() const
 {
     assert(this->m_row == this->m_col);
     Matrix<T> tmp(this->LU_factor_U());
@@ -740,8 +738,8 @@ Matrix<T> Matrix<T>::LDU_factor_D()
     return d;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::LDU_factor_U()
+template <typename T>
+Matrix<T> Matrix<T>::LDU_factor_U() const
 {
     assert(this->m_row == this->m_col);
     Matrix<T> u(this->LU_factor_U());
@@ -755,8 +753,8 @@ Matrix<T> Matrix<T>::LDU_factor_U()
     return u;
 }
 
-template <class T>
-Matrix<T> Matrix<T>::Inverse()
+template <typename T>
+Matrix<T> Matrix<T>::Inverse() const
 {
     T deter = this->determinant();
     assert(this->is_square());
@@ -765,7 +763,7 @@ Matrix<T> Matrix<T>::Inverse()
     assert(deter != tmp1);
     if (this->m_row == 1)
     {
-        vector<vector<T>> v{{static_cast<T>(1) / (*this)[0][0]}};
+        vector<vector<T>> v{{static_cast<T>(1) / (*data)[0][0]}};
         Matrix<T> tmp(v);
         return tmp;
     }
@@ -781,7 +779,7 @@ Matrix<T> Matrix<T>::Inverse()
             {
                 for (k = 0; k < n; k++)
                     for (m = 0; m < n; m++)
-                        tmp[k][m] = (*this)[k >= i ? k + 1 : k][m >= j ? m + 1 : m];
+                        tmp[k][m] = (*data)[k >= i ? k + 1 : k][m >= j ? m + 1 : m];
 
                 T a = tmp.determinant();
                 if ((i + j) % 2 == 1)
@@ -796,8 +794,8 @@ Matrix<T> Matrix<T>::Inverse()
     }
 }
 
-template <class T>
-Matrix<T> Matrix<T>::reshape(int r, int c)
+template <typename T>
+Matrix<T> Matrix<T>::reshape(int r, int c) const
 {
     if (this->m_row * this->m_col != r * c)
     {
@@ -812,7 +810,7 @@ Matrix<T> Matrix<T>::reshape(int r, int c)
         {
             for (j = 0; j < this->m_col; j++)
             {
-                ans[x][y] = (*this)[i][j];
+                ans[x][y] = (*data)[i][j];
                 y++;
                 if (y == c)
                 {
@@ -825,8 +823,8 @@ Matrix<T> Matrix<T>::reshape(int r, int c)
     }
 }
 
-template <class T>
-Matrix<T> Matrix<T>::slice(int r1, int r2, int c1, int c2)
+template <typename T>
+Matrix<T> Matrix<T>::slice(int r1, int r2, int c1, int c2) const
 {
     // assert(r1)
     if (r1 > r2)
@@ -879,14 +877,14 @@ Matrix<T> Matrix<T>::slice(int r1, int r2, int c1, int c2)
     {
         for (int j = c1; j <= c2; j++)
         {
-            tmp[i - r1][j - c1] = (*this)[i][j];
+            tmp[i - r1][j - c1] = (*data)[i][j];
         }
     }
     return tmp;
 }
 
-template <class T>
-T Matrix<T>::sum()
+template <typename T>
+T Matrix<T>::sum() const
 {
     T sum;
     sum = 0;
@@ -894,131 +892,139 @@ T Matrix<T>::sum()
     {
         for (int j = 0; j < m_col; j++)
         {
-            sum += (*this)[i][j];
+            sum += (*data)[i][j];
         }
     }
     return (sum);
 }
 
-template <class T>
-T Matrix<T>::mean()
+template <typename T>
+T Matrix<T>::mean() const
 {
     T total;
     total = this->m_row * this->m_col;
     return (this->sum() / total);
 }
 
-template <class T>
-T Matrix<T>::max()
+template <typename T>
+T Matrix<T>::max() const
 {
     int k = 0, m = 0, i, j;
     for (i = 0; i < this->m_row; i++)
         for (j = 0; j < this->m_col; j++)
-            if ((*this)[i][j] > (*this)[k][m])
+            if ((*data)[i][j] > (*data)[k][m])
             {
                 k = i;
                 m = j;
             }
 
-    return (*this)[k][m];
+    return (*data)[k][m];
 }
 
-template <class T>
-T Matrix<T>::min()
+template <typename T>
+T Matrix<T>::min() const
 {
     int k = 0, m = 0, i = 0, j = 0;
     for (i = 0; i < this->m_row; i++)
     {
         for (j = 0; j < this->m_col; j++)
         {
-            if ((*this)[k][m] > (*this)[i][j])
+            if ((*data)[k][m] > (*data)[i][j])
             {
                 k = i;
                 m = j;
             }
         }
     }
-    return (*this)[k][m];
+    return (*data)[k][m];
 }
+
 template <typename T>
-T Matrix<T>::row_max(int row)
+T Matrix<T>::row_max(int row) const
 {
     assert(row >= 0 && row < this->m_row);
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
     {
-        if ((*this)[row][k] < (*this)[row][i])
+        if ((*data)[row][k] < (*data)[row][i])
             k = i;
     }
-    return (*this)[row][k];
+    return (*data)[row][k];
 }
+
 template <typename T>
-T Matrix<T>::row_min(int row)
+T Matrix<T>::row_min(int row) const
 {
     assert(row >= 0 && row < this->m_row);
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
-        if ((*this)[row][k] > (*this)[row][i])
+        if ((*data)[row][k] > (*data)[row][i])
             k = i;
 
-    return (*this)[row][k];
+    return (*data)[row][k];
 }
+
 template <typename T>
-T Matrix<T>::row_sum(int row)
+T Matrix<T>::row_sum(int row) const
 {
     assert(row >= 0 && row < this->m_row);
     T row_sum;
     row_sum = 0;
     for (int i = 0; i < this->m_col; i++)
     {
-        row_sum += (*this)[row][i];
+        row_sum += (*data)[row][i];
     }
     return row_sum;
 }
+
 template <typename T>
-T Matrix<T>::row_mean(int row)
+T Matrix<T>::row_mean(int row) const
 {
     assert(row >= 0 && row < this->m_row);
     T total;
     total = (this->m_col);
     return this->row_sum(row) / total;
 }
+
 template <typename T>
-T Matrix<T>::col_max(int col)
+T Matrix<T>::col_max(int col) const
 {
     assert(col >= 0 && col < this->m_col);
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
-        if ((*this)[k][col] < (*this)[i][col])
+        if ((*data)[k][col] < (*data)[i][col])
             k = i;
 
-    return (*this)[k][col];
+    return (*data)[k][col];
 }
+
 template <typename T>
-T Matrix<T>::col_min(int col)
+T Matrix<T>::col_min(int col) const
 {
     assert(col >= 0 && col < this->m_col);
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
-        if ((*this)[k][col] > (*this)[i][col])
+        if ((*data)[k][col] > (*data)[i][col])
             k = i;
 
-    return (*this)[k][col];
+    return (*data)[k][col];
 }
+
 template <typename T>
-T Matrix<T>::col_sum(int col)
+T Matrix<T>::col_sum(int col) const
 {
     assert(col >= 0 && col < this->m_col);
     T col_sum;
     col_sum = 0;
     for (int i = 0; i < this->m_row; i++)
     {
-        col_sum += (*this)[i][col];
+        col_sum += (*data)[i][col];
     }
     return col_sum;
 }
+
 template <typename T>
-T Matrix<T>::col_mean(int col)
+T Matrix<T>::col_mean(int col) const
 {
     assert(col >= 0 && col < this->m_col);
     T total;
@@ -1028,9 +1034,9 @@ T Matrix<T>::col_mean(int col)
 
 // from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbQR.h
 template <typename T>
-pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition()
+pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition() const
 {
-    Matrix<T> input = *this;
+    Matrix<T> input(*this);
     vector<Matrix<T>> plist;
     for (int j = 0; j < m_row - 1; j++)
     {
@@ -1046,7 +1052,7 @@ pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition()
 
         T a1norm = a1.norm();
 
-        int sgn = -1;
+        T sgn = -1;
         if (a1[0][0] < static_cast<T>(0.0))
         {
             sgn = 1;
@@ -1079,39 +1085,36 @@ pair<Matrix<T>, Matrix<T>> Matrix<T>::QR_decomposition()
     }
 
     Matrix<T> qMat = plist[0];
-    for (int i = 1; i < m_row - 1; i++)
-    {
-        Matrix<T> temp3 = plist[i].Transposition();
-        qMat = qMat * temp3;
-    }
+    // for (int i = 1; i < m_row - 1; i++)
+    // {
+    //     Matrix<T> temp3 = plist[i].Transposition();
+    //     qMat = qMat * temp3;
+    // }
 
     int numElements = plist.size();
     Matrix<T> rMat = plist[numElements - 1];
-    for (int i = (numElements - 2); i >= 0; i--)
-    {
-        rMat = rMat * plist[i];
-    }
-    rMat = rMat * (*this);
+    // for (int i = (numElements - 2); i >= 0; i--)
+    // {
+    //     rMat = rMat * plist[i];
+    // }
+    // rMat = rMat * (*this);
 
     return pair<Matrix<T>, Matrix<T>>(qMat, rMat);
 }
 
 template <typename T>
-T Matrix<T>::norm()
+T Matrix<T>::norm() const
 {
     T cumulativeSum = static_cast<T>(0.0);
     for (int i = 0; i < m_row; i++)
-    {
         for (int j = 0; j < m_col; j++)
-        {
             cumulativeSum += (*this)[i][j] * (*this)[i][j];
-        }
-    }
+
     return sqrt(cumulativeSum);
 }
 
 template <typename T>
-Matrix<T> Matrix<T>::normalized()
+Matrix<T> Matrix<T>::normalized() const
 {
     T norm = this->norm();
     Matrix<T> copy(*this);
@@ -1122,19 +1125,11 @@ template <typename T>
 void Matrix<T>::SetIdentity()
 {
     for (int i = 0; i < m_row; i++)
-    {
         for (int j = 0; j < m_col; j++)
-        {
             if (i == j)
-            {
                 (*this)[i][j] = static_cast<T>(1.0);
-            }
             else
-            {
                 (*this)[i][j] = static_cast<T>(0.0);
-            }
-        }
-    }
 }
 
 // from: https://github.com/QuantitativeBytes/qbLinAlg/blob/main/qbEIG.h
@@ -1167,6 +1162,19 @@ bool Matrix<T>::isCloseEnough(T a, T b, double threshold)
 {
     return abs(a - b) < static_cast<T>(threshold);
 }
+
+template <>
+bool Matrix<uchar>::isCloseEnough(uchar a, uchar b, double threshold)
+{
+    return a == b;
+}
+
+template <>
+bool Matrix<char>::isCloseEnough(char a, char b, double threshold)
+{
+    return a == b;
+}
+
 
 template <typename T>
 bool Matrix<T>::isUpperTri()

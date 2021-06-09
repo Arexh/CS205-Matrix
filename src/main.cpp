@@ -29,13 +29,10 @@ int main()
     // cout << "Eigenvector: " << endl;
     // result.second.printMatrix();
 
-    Matrix<float> a(5, 10);
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 10; j++) {
-            a[i][j] = i * j;
-        }
-    }
-    cv::Mat* cvMat = a.toOpenCVMat(CV_32F);
-    cout << *cvMat << endl;
+    Matrix<double> a({{0.5, 0.75, 0.5},
+                    {1.0, 0.5, 0.75},
+                    {0.25, 0.25, 0.25}});
+    auto aResult = a.QR_decomposition();
+    // ASSERT_TRUE(aResult.first * aResult.second == a);
     return 0;
 }
