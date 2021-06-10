@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _SPARSE_MATRIX_H_
+#define _SPARSE_MATRIX_H_
+
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <iostream>
@@ -327,13 +329,13 @@ ostream& SparseMatrix<T>::printMatrixInt(ostream& stream)
 }
 
 template <>
-ostream&  SparseMatrix<char>::printMatrix(ostream& stream)
+ostream& SparseMatrix<char>::printMatrix(ostream& stream)
 {
     return printMatrixInt(stream);
 }
 
 template <>
-ostream&  SparseMatrix<uchar>::printMatrix(ostream& stream)
+ostream& SparseMatrix<uchar>::printMatrix(ostream& stream)
 {
     return printMatrixInt(stream);
 }
@@ -1509,3 +1511,5 @@ SparseMatrix<T> SparseMatrix<T>::conv2D(SparseMatrix<T> &input, SparseMatrix<T> 
     }
     return result;
 }
+
+#endif
