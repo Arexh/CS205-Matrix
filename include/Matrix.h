@@ -1,5 +1,6 @@
 #pragma once
 #include <opencv2/opencv.hpp>
+#include <stdio.h>
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -12,7 +13,7 @@
 using namespace std;
 using std::setw;
 
-const double EQ_THRESHOLD = 1e-10;
+#define EQ_THRESHOLD 1e-10
 
 template <typename T>
 class Matrix
@@ -70,6 +71,9 @@ public:
     template <typename U>
     friend Matrix<U> operator^(const Matrix<U>& l, const Matrix<U>& r);
 
+    template <typename U>
+    friend ostream& operator<<(ostream& stream, const Matrix& matrix);
+
     Matrix<T> operator-() const;
 
     Matrix<T> operator+=(const Matrix<T> &m1);
@@ -80,7 +84,7 @@ public:
 
     Matrix<T> conju();
 
-    Matrix<T> dot(const Matrix<T> &m1) const;
+    Matrix<T> & dot(const Matrix<T> &m1) const;
     Matrix<T> cross(const Matrix<T> &m1) const;
     Matrix<T> Transposition() const;
     Matrix<T> toTransposition();
@@ -112,7 +116,7 @@ public:
     T col_sum(int col) const;
     T col_mean(int col) const;
 
-    void printMatrix() const;
+    ostream& printMatrix(ostream& stream=cout) const;
 
     pair<Matrix<T>, Matrix<T>> QR_decomposition() const;
     T norm() const;
@@ -129,11 +133,11 @@ public:
     cv::Mat* toOpenCVMat(int type);
 
     static Matrix<T> fromOpenCV(const cv::Mat &cvMat);
-    static Matrix<T> *conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride=1, bool same_padding=true);
+    static Matrix<T> conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride=1, bool same_padding=true);
 
 private:
     T all_sort(int a[], int now, int length, T &determinant) const;
-    void printMatrixInt() const;
+    ostream& printMatrixInt(ostream& stream=cout) const;
 };
 
 template <typename T>
@@ -213,45 +217,47 @@ Matrix<T>::Matrix(const Matrix<T> &a)
 }
 
 template <typename T>
-void Matrix<T>::printMatrix() const
+ostream& Matrix<T>::printMatrix(ostream& stream) const
 {
-    printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
+    stream << "\n---------row:" << m_row << ",col:" << m_col << "-----------\n";
     for (int i = 0; i < m_row; i++)
     {
         for (int j = 0; j < m_col; j++)
         {
-            cout << std::setw(7) << (*data)[i][j] << " ";
+            stream << std::setw(7) << (*data)[i][j] << " ";
         }
-        printf("\n");
+        stream << endl;
     }
-    printf("---------------------------------\n");
+    stream << "---------------------------------\n";
+    return stream;
 }
 
 template <typename T>
-void Matrix<T>::printMatrixInt() const
+ostream& Matrix<T>::printMatrixInt(ostream& stream) const
 {
-    printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
+    stream << "\n---------row:" << m_row << ",col:" << m_col << "-----------\n";
     for (int i = 0; i < m_row; i++)
     {
         for (int j = 0; j < m_col; j++)
         {
-            cout << setprecision(2) << std::setw(7) << ((int) (*data)[i][j]) << " ";
+            stream << setprecision(2) << std::setw(7) << ((int) (*data)[i][j]) << " ";
         }
-        printf("\n");
+        stream << endl;
     }
-    printf("---------------------------------\n");
+    stream << "---------------------------------\n";
+    return stream;
 }
 
 template <>
-void Matrix<char>::printMatrix() const
+ostream& Matrix<char>::printMatrix(ostream& stream) const
 {
-    printMatrixInt();
+    return printMatrixInt(stream);
 }
 
 template <>
-void Matrix<uchar>::printMatrix() const
+ostream& Matrix<uchar>::printMatrix(ostream& stream) const
 {
-    printMatrixInt();
+    return printMatrixInt(stream);
 }
 
 template <typename T>
@@ -304,6 +310,12 @@ bool Matrix<T>::operator!=(const Matrix<T> &m1) const
 }
 
 template <typename T>
+ostream& operator<<(ostream& stream, const Matrix<T>& matrix)
+{
+    return matrix.printMatrix(stream);
+}
+
+template <typename T>
 bool Matrix<T>::is_size_equal(const Matrix<T> &m1) const
 {
     return m_row == m1.m_row && m_col == m1.m_col;
@@ -318,7 +330,7 @@ bool Matrix<T>::is_square() const
 template <typename T>
 bool Matrix<T>::is_zero() const
 {
-    return determinant() == 0;
+    return determinant() ==  static_cast<T>(0);
 }
 
 template <typename T>
@@ -524,7 +536,7 @@ Matrix<T> Matrix<T>::conju()
 }
 
 template <typename T>
-Matrix<T> Matrix<T>::dot(const Matrix<T> &m1) const
+Matrix<T> & Matrix<T>::dot(const Matrix<T> &m1) const
 {
     return (*this) ^ m1;
 }
@@ -1331,7 +1343,7 @@ cv::Mat* Matrix<T>::toOpenCVMat(int type) {
 }
 
 template <typename T>
-Matrix<T>* Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride, bool same_padding) {
+Matrix<T> Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride, bool same_padding) {
     Matrix<T> inputMatrix;
     int padding = 0;
     if (same_padding) {
@@ -1349,7 +1361,7 @@ Matrix<T>* Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, in
     }
     int rowDim = ((input.m_row + 2 * padding - kernel.m_row) / stride) + 1;
     int colDim = ((input.m_col + 2 * padding - kernel.m_col) / stride) + 1;
-    Matrix<T> *result = new Matrix<T>(rowDim, colDim);
+    Matrix<T> result(rowDim, colDim);
     for (int i = 0; i < rowDim; i++) {
         for (int j = 0; j < colDim; j++) {
             T cumulativeSum = static_cast<T>(0);
@@ -1358,7 +1370,7 @@ Matrix<T>* Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, in
                     cumulativeSum += kernel[x][y] * inputMatrix[x + i * stride][y + j * stride];
                 }
             }
-            (*result)[i][j] = cumulativeSum;
+            result[i][j] = cumulativeSum;
         }
     }
     return result;
