@@ -12,7 +12,7 @@
 using namespace std;
 using std::setw;
 
-const double EQ_THRESHOLD = 1e-10;
+#define EQ_THRESHOLD 1e-10
 
 template <typename T>
 class Matrix
@@ -129,7 +129,7 @@ public:
     cv::Mat* toOpenCVMat(int type);
 
     static Matrix<T> fromOpenCV(const cv::Mat &cvMat);
-    static Matrix<T> *conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride=1, bool same_padding=true);
+    static Matrix<T> conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride=1, bool same_padding=true);
 
 private:
     T all_sort(int a[], int now, int length, T &determinant) const;
@@ -1331,7 +1331,7 @@ cv::Mat* Matrix<T>::toOpenCVMat(int type) {
 }
 
 template <typename T>
-Matrix<T>* Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride, bool same_padding) {
+Matrix<T> Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride, bool same_padding) {
     Matrix<T> inputMatrix;
     int padding = 0;
     if (same_padding) {
@@ -1349,7 +1349,7 @@ Matrix<T>* Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, in
     }
     int rowDim = ((input.m_row + 2 * padding - kernel.m_row) / stride) + 1;
     int colDim = ((input.m_col + 2 * padding - kernel.m_col) / stride) + 1;
-    Matrix<T> *result = new Matrix<T>(rowDim, colDim);
+    Matrix<T> result(rowDim, colDim);
     for (int i = 0; i < rowDim; i++) {
         for (int j = 0; j < colDim; j++) {
             T cumulativeSum = static_cast<T>(0);
@@ -1358,7 +1358,7 @@ Matrix<T>* Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, in
                     cumulativeSum += kernel[x][y] * inputMatrix[x + i * stride][y + j * stride];
                 }
             }
-            (*result)[i][j] = cumulativeSum;
+            result[i][j] = cumulativeSum;
         }
     }
     return result;

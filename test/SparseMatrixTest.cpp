@@ -1,12 +1,12 @@
 #include <opencv2/opencv.hpp>
 #include "gtest/gtest.h"
-#include "Matrix.h"
+#include "SparseMatrix.h"
 #include <complex>
 
 using namespace std;
 
 template <typename T>
-void assertMatrixEqual(const Matrix<T>& one, const Matrix<T>& two) {
+void assertSparseMatrixEqual(SparseMatrix<T>& one, SparseMatrix<T>& two) {
     ASSERT_EQ(one.m_row, two.m_row);
     ASSERT_EQ(one.m_col, two.m_col);
     for (int i = 0; i < one.m_row; i++) {
@@ -16,13 +16,13 @@ void assertMatrixEqual(const Matrix<T>& one, const Matrix<T>& two) {
     }
 }
 
-TEST(MatrixTest, MatrixAdd)
+TEST(SparseMatrixTest, SparseMatrixAdd)
 {
-    Matrix<int> a({{1, 2, 3, 4},
+    SparseMatrix<int> a({{1, 2, 3, 4},
                    {5, 6, 7, 8}});
-    Matrix<int> b({{8, 7, 6, 5},
+    SparseMatrix<int> b({{8, 7, 6, 5},
                    {4, 3, 2, 1}});
-    Matrix<int> c = a + b;
+    SparseMatrix<int> c = a + b;
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < 4; j++)
@@ -31,11 +31,11 @@ TEST(MatrixTest, MatrixAdd)
         }
     }
 
-    Matrix<complex<double>> aa({{(1.0 + 2i), (3.0 + 4i), (5.0 + 6i), (7.0 + 8i)},
+    SparseMatrix<complex<double>> aa({{(1.0 + 2i), (3.0 + 4i), (5.0 + 6i), (7.0 + 8i)},
                                 {(8.0 + 7i), (6.0 + 5i), (4.0 + 3i), (2.0 + 1i)}});
-    Matrix<complex<double>> bb({{(8.0 + 7i), (6.0 + 5i), (4.0 + 3i), (2.0 + 1i)},
+    SparseMatrix<complex<double>> bb({{(8.0 + 7i), (6.0 + 5i), (4.0 + 3i), (2.0 + 1i)},
                                 {(1.0 + 2i), (3.0 + 4i), (5.0 + 6i), (7.0 + 8i)}});
-    Matrix<complex<double>> cc = aa + bb;
+    SparseMatrix<complex<double>> cc = aa + bb;
     for (int i = 0; i < cc.m_row; i++)
     {
         for (int j = 0; j < cc.m_row; j++)
@@ -45,13 +45,13 @@ TEST(MatrixTest, MatrixAdd)
     }
 }
 
-TEST(MatrixTest, MatrixMinus)
+TEST(SparseMatrixTest, SparseMatrixMinus)
 {
-    Matrix<int> a({{1, 2, 3, 4},
+    SparseMatrix<int> a({{1, 2, 3, 4},
                    {5, 6, 7, 8}});
-    Matrix<int> b({{2, 3, 4, 5},
+    SparseMatrix<int> b({{2, 3, 4, 5},
                    {6, 7, 8, 9}});
-    Matrix<int> c = a - b;
+    SparseMatrix<int> c = a - b;
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < 4; j++)
@@ -60,11 +60,11 @@ TEST(MatrixTest, MatrixMinus)
         }
     }
 
-    Matrix<complex<double>> aa({{(1.0 + 2i), (3.0 + 4i)},
+    SparseMatrix<complex<double>> aa({{(1.0 + 2i), (3.0 + 4i)},
                                 {(5.0 + 6i), (7.0 + 8i)}});
-    Matrix<complex<double>> bb({{(2.0 + 3i), (4.0 + 5i)},
+    SparseMatrix<complex<double>> bb({{(2.0 + 3i), (4.0 + 5i)},
                                 {(6.0 + 7i), (8.0 + 9i)}});
-    Matrix<complex<double>> cc = aa - bb;
+    SparseMatrix<complex<double>> cc = aa - bb;
     for (int i = 0; i < cc.m_row; i++)
     {
         for (int j = 0; j < cc.m_row; j++)
@@ -74,13 +74,13 @@ TEST(MatrixTest, MatrixMinus)
     }
 }
 
-TEST(MatrixTest, TestMatrixMultiply)
+TEST(SparseMatrixTest, SparseMatrixMultiply)
 {
-    Matrix<int> a({{1, 1},
+    SparseMatrix<int> a({{1, 1},
                    {2, 2}});
-    Matrix<int> b({{-2, -2},
+    SparseMatrix<int> b({{-2, -2},
                    {1, 1}});
-    Matrix<int> c({{-1, -1},
+    SparseMatrix<int> c({{-1, -1},
                    {-2, -2}});
     for (int i = 0; i < c.m_row; i++)
     {
@@ -90,12 +90,12 @@ TEST(MatrixTest, TestMatrixMultiply)
         }
     }
 
-    Matrix<complex<int>> aa({{complex<int>(1, 1), complex<int>(1, 1)},
+    SparseMatrix<complex<int>> aa({{complex<int>(1, 1), complex<int>(1, 1)},
                              {complex<int>(2, 2), complex<int>(2, 2)}});
-    Matrix<complex<int>> bb({{complex<int>(-2, -2), complex<int>(-2, -2)},
+    SparseMatrix<complex<int>> bb({{complex<int>(-2, -2), complex<int>(-2, -2)},
                              {complex<int>(1, 1), complex<int>(1, 1)}});
     (aa * bb).printMatrix();
-    Matrix<complex<int>> mul({{complex<int>(0, -2), complex<int>(0, -2)},
+    SparseMatrix<complex<int>> mul({{complex<int>(0, -2), complex<int>(0, -2)},
                               {complex<int>(0, -4), complex<int>(0, -4)}});
     for (int i = 0; i < mul.m_row; i++)
     {
@@ -106,46 +106,46 @@ TEST(MatrixTest, TestMatrixMultiply)
     }
 }
 
-TEST(MatrixTest, DefautConstructorTest)
+TEST(SparseMatrixTest, DefautConstructorTest)
 {
-    Matrix<int> a;
+    SparseMatrix<int> a;
     a.printMatrix();
-    Matrix<complex<double>> *b = new Matrix<complex<double>>;
+    SparseMatrix<complex<double>> *b = new SparseMatrix<complex<double>>;
     b->printMatrix();
     delete b;
-    Matrix<double> c(3, 3);
+    SparseMatrix<double> c(3, 3);
     c.printMatrix();
-    Matrix<complex<int>> d(5, 5);
+    SparseMatrix<complex<int>> d(5, 5);
     d.printMatrix();
-    Matrix<complex<double>> *e = new Matrix<complex<double>>(4, 4);
+    SparseMatrix<complex<double>> *e = new SparseMatrix<complex<double>>(4, 4);
     e->printMatrix();
     delete e;
 }
 
-TEST(MatrixTest, CopyConstructorTest)
+TEST(SparseMatrixTest, CopyConstructorTest)
 {
     int i, j;
-    Matrix<int> a({{1, 2, 3, 4},
+    SparseMatrix<int> a({{1, 2, 3, 4},
                    {5, 6, 7, 8}});
-    Matrix<int> aa(a);
+    SparseMatrix<int> aa(a);
     for (i = 0; i < a.m_row; i++)
         for (j = 0; j < a.m_col; j++)
             ASSERT_EQ(aa[i][j], a[i][j]);
 
     ASSERT_NE(&a, &aa);
     //////////////////
-    Matrix<complex<double>> b({{(1.0 + 2i), (3.0 + 4i), (5.0 + 6i), (7.0 + 8i)},
+    SparseMatrix<complex<double>> b({{(1.0 + 2i), (3.0 + 4i), (5.0 + 6i), (7.0 + 8i)},
                                {(8.0 + 7i), (6.0 + 5i), (4.0 + 3i), (2.0 + 1i)}});
-    Matrix<complex<double>> bb(b);
+    SparseMatrix<complex<double>> bb(b);
     for (i = 0; i < b.m_row; i++)
         for (j = 0; j < b.m_col; j++)
             ASSERT_EQ(bb[i][j], b[i][j]);
 
     ASSERT_NE(&b, &bb);
     /////////////////
-    Matrix<complex<int>> c({{complex<int>(1, 2), complex<int>(3, 4)},
+    SparseMatrix<complex<int>> c({{complex<int>(1, 2), complex<int>(3, 4)},
                             {complex<int>(5, 6), complex<int>(7, 8)}});
-    Matrix<complex<int>> cc(c);
+    SparseMatrix<complex<int>> cc(c);
     for (i = 0; i < c.m_row; i++)
         for (j = 0; j < c.m_col; j++)
             ASSERT_EQ(cc[i][j], c[i][j]);
@@ -153,15 +153,15 @@ TEST(MatrixTest, CopyConstructorTest)
     ASSERT_NE(&c, &cc);
 }
 
-TEST(MatrixTest, row_col_negative)
+TEST(SparseMatrixTest, row_col_negative)
 {
-    Matrix<complex<int>> a(-3, -1);
-    Matrix<int> b(0, -5);
-    Matrix<double> c(-5, 0);
-    Matrix<complex<float>> d(1, 0);
+    SparseMatrix<complex<int>> a(-3, -1);
+    SparseMatrix<int> b(0, -5);
+    SparseMatrix<double> c(-5, 0);
+    SparseMatrix<complex<float>> d(1, 0);
     //锟斤拷飧达拷乒锟斤拷锟斤拷锟�
-    Matrix<complex<int>> aa(a);
-    Matrix<int> bb(b);
+    SparseMatrix<complex<int>> aa(a);
+    SparseMatrix<int> bb(b);
 
     ASSERT_GE(a.m_row, 0) << "m_row is negetive";
     ASSERT_GE(a.m_col, 0) << "m_col is negetive";
@@ -177,102 +177,102 @@ TEST(MatrixTest, row_col_negative)
     ASSERT_GE(bb.m_col, 0) << "m_col is negetive";
 }
 
-TEST(MatrixTest, AssignmentOperator)
+TEST(SparseMatrixTest, AssignmentOperator)
 {
     int i, j;
-    Matrix<complex<int>> a({{complex<int>(1, 2), complex<int>(3, 4)},
+    SparseMatrix<complex<int>> a({{complex<int>(1, 2), complex<int>(3, 4)},
                             {complex<int>(5, 6), complex<int>(7, 8)}});
-    Matrix<complex<int>> aa = a;
+    SparseMatrix<complex<int>> aa = a;
     for (i = 0; i < a.m_row; i++)
         for (j = 0; j < a.m_col; j++)
             ASSERT_EQ(aa[i][j], a[i][j]);
     ASSERT_NE(&a, &aa);
 
-    Matrix<double> b({{1, 2, 3, 4},
+    SparseMatrix<double> b({{1, 2, 3, 4},
                       {5, 6, 7, 8}});
-    Matrix<double> bb = b;
+    SparseMatrix<double> bb = b;
     for (i = 0; i < b.m_row; i++)
         for (j = 0; j < b.m_col; j++)
             ASSERT_EQ(bb[i][j], b[i][j]);
     ASSERT_NE(&b, &bb);
 }
 
-TEST(MatrixTest, ComplexConjugate) //取锟斤拷锟斤拷test
+TEST(SparseMatrixTest, ComplexConjugate)
 {
     int i, j;
-    Matrix<complex<int>> c({{complex<int>(1, 2), complex<int>(3, 4)},
+    SparseMatrix<complex<int>> c({{complex<int>(1, 2), complex<int>(3, 4)},
                             {complex<int>(5, 6), complex<int>(7, 8)}});
-    Matrix<complex<int>> cc({{complex<int>(1, -2), complex<int>(3, -4)},
+    SparseMatrix<complex<int>> cc({{complex<int>(1, -2), complex<int>(3, -4)},
                              {complex<int>(5, -6), complex<int>(7, -8)}});
     for (i = 0; i < cc.m_row; i++)
         for (j = 0; j < cc.m_col; j++)
             ASSERT_EQ(conj(cc[i][j]), c[i][j]);
 }
 
-TEST(MatrixTest, trace)
+TEST(SparseMatrixTest, trace)
 {
-    Matrix<double> a({{1, 1, 1, 1},
+    SparseMatrix<double> a({{1, 1, 1, 1},
                       {2, 2, 2, 2},
                       {1, 2, 3, 4},
                       {1, 5, 6, 9}});
     ASSERT_EQ(15, a.trace());
 
-    Matrix<double> b({{5.5, 2}});
+    SparseMatrix<double> b({{5.5, 2}});
     ASSERT_EQ(0, b.trace());
 
-    Matrix<complex<double>> d({{complex<double>(1, 1), complex<double>(1, 1)},
+    SparseMatrix<complex<double>> d({{complex<double>(1, 1), complex<double>(1, 1)},
                                {complex<double>(1, -1), complex<double>(1, 1)}});
     ASSERT_EQ(complex<double>(2, 2), d.trace());
 }
 
-TEST(MatrixTest, determinant)
+TEST(SparseMatrixTest, determinant)
 {
-    Matrix<double> a({{1, 1, 1, 1},
+    SparseMatrix<double> a({{1, 1, 1, 1},
                       {2, 2, 2, 2},
                       {1, 2, 3, 4},
                       {1, 5, 6, 9}});
     ASSERT_EQ(0, a.determinant());
 
     vector<vector<double>> v{{5.5}};
-    Matrix<double> b(v);
+    SparseMatrix<double> b(v);
     ASSERT_EQ(5.5, b.determinant());
 
-    Matrix<double> c({{1, 1},
+    SparseMatrix<double> c({{1, 1},
                       {2, 3}});
     ASSERT_EQ(1, c.determinant());
 
-    Matrix<complex<double>> d({{complex<double>(1, 1), complex<double>(1, 1)},
+    SparseMatrix<complex<double>> d({{complex<double>(1, 1), complex<double>(1, 1)},
                                {complex<double>(1, -1), complex<double>(1, 1)}});
     ASSERT_EQ(complex<double>(-2, 2), d.determinant());
 }
 
-TEST(MatrixTest, Inverse)
+TEST(SparseMatrixTest, Inverse)
 {
     vector<vector<double>> v{{4}};
-    Matrix<double> b(v);
+    SparseMatrix<double> b(v);
     (b.Inverse()).printMatrix();
     (b.Inverse() * b).printMatrix();
 
-    Matrix<double> c({{1, -1},
+    SparseMatrix<double> c({{1, -1},
                       {1, 1}});
     (c.Inverse()).printMatrix();
     (c.Inverse() * c).printMatrix();
 
-    Matrix<double> d({{1, 0, 0},
+    SparseMatrix<double> d({{1, 0, 0},
                       {0, 2, 0},
                       {0, 0, 4}});
     (d.Inverse()).printMatrix();
     (d.Inverse() * d).printMatrix();
 
-    Matrix<complex<double>> e({{complex<double>(1, 1), complex<double>(1, 1)},
+    SparseMatrix<complex<double>> e({{complex<double>(1, 1), complex<double>(1, 1)},
                                {complex<double>(1, -1), complex<double>(1, 1)}});
     e.Inverse().printMatrix();
     (e.Inverse() * e).printMatrix();
 }
 
-TEST(MatrixTest, Max_Min_Sum_Mean_Test)
+TEST(SparseMatrixTest, Max_Min_Sum_Mean_Test)
 {
-    Matrix<double> a({{5, 2, 1, 1},
+    SparseMatrix<double> a({{5, 2, 1, 1},
                       {2, 3, 4, 5},
                       {1, 2, 3, 4},
                       {1, 5, 6, 9}});
@@ -298,9 +298,9 @@ TEST(MatrixTest, Max_Min_Sum_Mean_Test)
     ASSERT_EQ(col_mean, a.col_mean(1));
 }
 
-TEST(MatrxTest, reshape)
+TEST(SparseMatrixTest, reshape)
 {
-    Matrix<double> a({{5, 2, 1, 1, 2},
+    SparseMatrix<double> a({{5, 2, 1, 1, 2},
                       {2, 3, 4, 5, 3},
                       {1, 2, 3, 4, 4},
                       {1, 5, 6, 9, 5}});
@@ -308,9 +308,9 @@ TEST(MatrxTest, reshape)
     a.reshape(3, 4).printMatrix();
 }
 
-TEST(MatrxTest, slice)
+TEST(SparseMatrixTest, slice)
 {
-    Matrix<double> a({{5, 2, 1, 1, 2},
+    SparseMatrix<double> a({{5, 2, 1, 1, 2},
                       {2, 3, 4, 5, 3},
                       {1, 2, 3, 4, 4},
                       {1, 5, 6, 9, 5}});
@@ -319,25 +319,25 @@ TEST(MatrxTest, slice)
     a.slice(2, 2, 1, 4).printMatrix(); 
 }
 
-TEST(MatrixTest, QR_decomposition)
+TEST(SparseMatrixTest, QR_decomposition)
 {
-    // 3 x 3 Matrix
-    Matrix<double> a({{0.5, 0.75, 0.5},
+    // 3 x 3 SparseMatrix
+    SparseMatrix<double> a({{0.5, 0.75, 0.5},
                       {1.0, 0.5, 0.75},
                       {0.25, 0.25, 0.25}});
     auto aResult = a.QR_decomposition();
     ASSERT_TRUE(aResult.first * aResult.second == a);
 
-    // 4 x 4 Matrix
-    Matrix<double> b({{1.0, 5.0, 3.0, 4.0},
+    // 4 x 4 SparseMatrix
+    SparseMatrix<double> b({{1.0, 5.0, 3.0, 4.0},
                       {7.0, 8.0, 2.0, 9.0},
                       {7.0, 3.0, 2.0, 1.0},
                       {9.0, 3.0, 5.0, 7.0}});
     auto bResult = b.QR_decomposition();
     ASSERT_TRUE((bResult.first * bResult.second) == b);
 
-    // 5 x 5 Matrix
-    Matrix<double> c({{2, 6, 4, 6, 8},
+    // 5 x 5 SparseMatrix
+    SparseMatrix<double> c({{2, 6, 4, 6, 8},
                       {6, 7, 9, 7, 9},
                       {2, 3, 6, 3, 5},
                       {6, 1, 1, 5, 5},
@@ -345,8 +345,8 @@ TEST(MatrixTest, QR_decomposition)
     auto cResult = c.QR_decomposition();
     ASSERT_TRUE((cResult.first * cResult.second) == c);
 
-    // 5 x 5 Matrix
-    Matrix<double> d({{8.662634278267483, 2.3440981169711796, 3.414158790068152, 9.819959485632891, 9.812414578216162},
+    // 5 x 5 SparseMatrix
+    SparseMatrix<double> d({{8.662634278267483, 2.3440981169711796, 3.414158790068152, 9.819959485632891, 9.812414578216162},
                       {4.8096369839436495, 7.743133259609277, 9.871217856632036, 7.100783013043249, 8.127838524397976},
                       {1.3468248609110365, 1.3120774834063536, 9.607366488550678, 2.852679282078192, 8.087038227451359},
                       {7.556075051454403, 5.80117852857823, 3.550189544341768, 3.7807047754393994, 7.934423413357392},
@@ -355,13 +355,13 @@ TEST(MatrixTest, QR_decomposition)
     ASSERT_TRUE((dResult.first * dResult.second) == d);
 }
 
-TEST(MatrixTest, From_OpenCV_Mat)
+TEST(SparseMatrixTest, From_OpenCV_Mat)
 {
-    // 6 x 2 zeros matrix
+    // 6 x 2 zeros SparseMatrix
     {
         const int aRow = 6, aCol = 2;
         cv::Mat a = cv::Mat::zeros(aRow, aCol, CV_8UC1);
-        Matrix<uchar> aMatix = Matrix<uchar>::fromOpenCV(a);
+        SparseMatrix<uchar> aMatix = SparseMatrix<uchar>::fromOpenCV(a);
         ASSERT_EQ(aMatix.m_row, aRow);
         ASSERT_EQ(aMatix.m_col, aCol);
         for (int i = 0; i < aRow; i++) {
@@ -371,11 +371,11 @@ TEST(MatrixTest, From_OpenCV_Mat)
             }
         }
     }
-    // 4 x 4 ones matrix
+    // 4 x 4 ones SparseMatrix
     {
         const int aRow = 4, aCol = 4;
         cv::Mat a = cv::Mat::ones(aRow, aCol, CV_8UC1);
-        Matrix<uchar> aMatix = Matrix<uchar>::fromOpenCV(a);
+        SparseMatrix<uchar> aMatix = SparseMatrix<uchar>::fromOpenCV(a);
         ASSERT_EQ(aMatix.m_row, aRow);
         ASSERT_EQ(aMatix.m_col, aCol);
         for (int i = 0; i < aRow; i++) {
@@ -385,14 +385,14 @@ TEST(MatrixTest, From_OpenCV_Mat)
             }
         }
     }
-    // 10 x 10 float random value matrix
+    // 10 x 10 float random value SparseMatrix
     {
         const int aRow = 10, aCol = 10;
         double low = -500.0;
         double high = +500.0;
         cv::Mat a = cv::Mat(aRow, aCol, CV_32F);
         randu(a, cv::Scalar(low), cv::Scalar(high));
-        Matrix<float> aMatix = Matrix<float>::fromOpenCV(a);
+        SparseMatrix<float> aMatix = SparseMatrix<float>::fromOpenCV(a);
         ASSERT_EQ(aMatix.m_row, aRow);
         ASSERT_EQ(aMatix.m_col, aCol);
         for (int i = 0; i < aRow; i++) {
@@ -403,53 +403,53 @@ TEST(MatrixTest, From_OpenCV_Mat)
     }
 }
 
-TEST(MatrixTest, To_OpenCV_Mat)
+TEST(SparseMatrixTest, To_OpenCV_Mat)
 {
-    // 5 x 10 int matrix
+    // 5 x 10 int SparseMatrix
     {
         const int aRow = 5, aCol = 10;
-        Matrix<int> aMatrix(aRow, aCol);
+        SparseMatrix<int> aSparseMatrix(aRow, aCol);
         int cnt = 0;
         for (int i = 0; i < aRow; i++) {
             for (int j = 0; j < aCol; j++) {
-                aMatrix[i][j] = cnt++;
+                aSparseMatrix[i][j] = cnt++;
             }
         }
-        cv::Mat* cvMat = aMatrix.toOpenCVMat(CV_32S);
-        Matrix<int> bMatrix = Matrix<int>::fromOpenCV(*cvMat);
+        cv::Mat* cvMat = aSparseMatrix.toOpenCVMat(CV_32S);
+        SparseMatrix<int> bSparseMatrix = SparseMatrix<int>::fromOpenCV(*cvMat);
         for (int i = 0; i < aRow; i++) {
             for (int j = 0; j < aCol; j++) {
-                ASSERT_EQ(aMatrix[i][j], bMatrix[i][j]);
+                ASSERT_EQ(aSparseMatrix[i][j], bSparseMatrix[i][j]);
             }
         }
     }
-    // 20 x 10 float random value matrix
+    // 20 x 10 float random value SparseMatrix
     {
         const int aRow = 20, aCol = 10;
         double low = -500.0;
         double high = +500.0;
         cv::Mat a = cv::Mat(aRow, aCol, CV_32F);
         randu(a, cv::Scalar(low), cv::Scalar(high));
-        Matrix<float> aMatrix = Matrix<float>::fromOpenCV(a);
-        cv::Mat* cvMat = aMatrix.toOpenCVMat(CV_32S);
-        Matrix<float> bMatrix = Matrix<float>::fromOpenCV(*cvMat);
+        SparseMatrix<float> aSparseMatrix = SparseMatrix<float>::fromOpenCV(a);
+        cv::Mat* cvMat = aSparseMatrix.toOpenCVMat(CV_32S);
+        SparseMatrix<float> bSparseMatrix = SparseMatrix<float>::fromOpenCV(*cvMat);
         for (int i = 0; i < aRow; i++) {
             for (int j = 0; j < aCol; j++) {
-                ASSERT_EQ(aMatrix[i][j], bMatrix[i][j]);
+                ASSERT_EQ(aSparseMatrix[i][j], bSparseMatrix[i][j]);
             }
         }
     }
 }
 
-TEST(MatrixTest, conv2D)
+TEST(SparseMatrixTest, conv2D)
 {
-    Matrix<int> inputDim4({
+    SparseMatrix<int> inputDim4({
         {5, 7, 1, 2},
         {4, 3, 9, 0},
         {8, 7, 6, 1},
         {4, 2, 0, 7}
     });
-    Matrix<int> kernelDim3({
+    SparseMatrix<int> kernelDim3({
         {1, 0, 1},
         {1, 1, 1},
         {2, 1, 0}
@@ -457,44 +457,44 @@ TEST(MatrixTest, conv2D)
     // 4 x 4 input, 3 x 3 kernel, 1 stride, valid
     {
         
-        Matrix<int> result = Matrix<int>::conv2D(inputDim4, kernelDim3, 1, false);
-        Matrix<int> expected({
+        SparseMatrix<int> result = SparseMatrix<int>::conv2D(inputDim4, kernelDim3, 1, false);
+        SparseMatrix<int> expected({
             {45, 41},
             {44, 21}
         });
-        assertMatrixEqual(result, expected);
+        assertSparseMatrixEqual(result, expected);
     }
     // 4 x 4 input, 3 x 3 kernel, 1 stride, same
     {
         
-        Matrix<int> result = Matrix<int>::conv2D(inputDim4, kernelDim3, 1, true);
-        Matrix<int> expected({
+        SparseMatrix<int> result = SparseMatrix<int>::conv2D(inputDim4, kernelDim3, 1, true);
+        SparseMatrix<int> expected({
             {16, 24, 25, 21},
             {22, 45, 41, 23},
             {22, 44, 21, 23},
             {13, 20, 17, 13}
         });
-        assertMatrixEqual(result, expected);
+        assertSparseMatrixEqual(result, expected);
     }
     // 4 x 4 input, 3 x 3 kernel, 2 stride, valid
     {
         
-        Matrix<int> result = Matrix<int>::conv2D(inputDim4, kernelDim3, 2, false);
+        SparseMatrix<int> result = SparseMatrix<int>::conv2D(inputDim4, kernelDim3, 2, false);
         vector<vector<int>> v {
             {45}
         };
-        Matrix<int> expected(v);
-        assertMatrixEqual(result, expected);
+        SparseMatrix<int> expected(v);
+        assertSparseMatrixEqual(result, expected);
     }
     // 4 x 4 input, 3 x 3 kernel, 2 stride, same
     {
         
-        Matrix<int> result = Matrix<int>::conv2D(inputDim4, kernelDim3, 2, true);
+        SparseMatrix<int> result = SparseMatrix<int>::conv2D(inputDim4, kernelDim3, 2, true);
         vector<vector<int>> v {
             {16, 25},
             {22, 21}
         };
-        Matrix<int> expected(v);
-        assertMatrixEqual(result, expected);
+        SparseMatrix<int> expected(v);
+        assertSparseMatrixEqual(result, expected);
     }
 }
