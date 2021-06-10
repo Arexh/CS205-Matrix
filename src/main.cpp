@@ -11,9 +11,9 @@ int main()
     //                         {-1, -3}});
     // Matrix<double> cc({{1, 2},
     //                 {-1, -3}});
-    // SparseMatrix<double> pp({{9, 23, 10},
-    //                         {2, 1, 0},
-    //                         {0, 7, 5}});
+    SparseMatrix<double> pp({{9, 23, 10},
+                            {2, 1, 0},
+                            {0, 7, 5}});
     // SparseMatrix<double> bb({{5, 75, 5},
     //                         {0, 1, 0},
     //                         {25, 25, 2}});
@@ -28,9 +28,7 @@ int main()
     // oo.printMatrix();
     // cout << oo.col_mean(0) << endl;
     // cc.Inverse().printMatrix();
-
-    SparseMatrix<int> a;
-    a.printMatrix();
+    cout << pp << endl;
     // SparseMatrix<double> r = aResult.first * aResult.second;
     // r.printMatrix();
     return 0;

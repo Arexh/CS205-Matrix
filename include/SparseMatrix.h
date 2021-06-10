@@ -99,6 +99,9 @@ public:
     template <typename U>
     friend SparseMatrix<U> operator^(SparseMatrix<U> l, SparseMatrix<U> r);
 
+    template <typename U>
+    friend ostream& operator<<(ostream& stream, const SparseMatrix<U>& matrix);
+
     SparseMatrix<T> operator-();
 
     SparseMatrix<T> operator+=(SparseMatrix<T> m1);
@@ -141,7 +144,7 @@ public:
     T col_sum(int col);
     T col_mean(int col);
 
-    void printMatrix();
+    ostream& printMatrix(ostream& stream=cout);
 
     pair<SparseMatrix<T>, SparseMatrix<T>> QR_decomposition();
     T norm();
@@ -206,7 +209,7 @@ public:
 
 private:
     T all_sort(int a[], int now, int length, T &determinant);
-    void printMatrixInt();
+    ostream& printMatrixInt(ostream& stream=cout);
 };
 
 template <typename T>
@@ -282,55 +285,57 @@ void SparseMatrix<T>::remove(int row, int col)
 }
 
 template <typename T>
-void SparseMatrix<T>::printMatrix()
+ostream& SparseMatrix<T>::printMatrix(ostream& stream)
 {
     sort();
-    printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
+    stream << "\n---------row:" << m_row << ",col:" << m_col << "-----------\n";
     int cnt = 0;
     for (int i = 0; i < m_row; i++)
     {
         for (int j = 0; j < m_col; j++)
         {
             if (cnt < (*data).size() && (*data)[cnt].row == i && (*data)[cnt].col == j)
-                cout << std::setw(7) << (*data)[cnt++].value << " ";
+                stream << std::setw(7) << (*data)[cnt++].value << " ";
             else
-                cout << std::setw(7) << 0 << " ";
+                stream << std::setw(7) << 0 << " ";
         }
-        printf("\n");
+        stream << endl;
     }
-    printf("---------------------------------\n");
+    stream << "---------------------------------\n";
+    return stream;
 }
 
 template <typename T>
-void SparseMatrix<T>::printMatrixInt()
+ostream& SparseMatrix<T>::printMatrixInt(ostream& stream)
 {
     sort();
-    printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
+    stream << "\n---------row:" << m_row << ",col:" << m_col << "-----------\n";
     int cnt = 0;
     for (int i = 0; i < m_row; i++)
     {
         for (int j = 0; j < m_col; j++)
         {
             if (cnt < (*data).size() && (*data)[cnt].row == i && (*data)[cnt].col == j)
-                cout << std::setw(7) << ((int)(*data)[cnt++].value) << " ";
+                stream << std::setw(7) << ((int)(*data)[cnt++].value) << " ";
             else
-                cout << std::setw(7) << 0 << " ";
+                stream << std::setw(7) << 0 << " ";
         }
-        printf("\n");
+        stream << endl;
     }
-    printf("---------------------------------\n");
+    stream << "---------------------------------\n";
+    return stream;
 }
 
 template <>
-void SparseMatrix<char>::printMatrix()
+ostream&  SparseMatrix<char>::printMatrix(ostream& stream)
 {
-    printMatrixInt();
+    return printMatrixInt(stream);
 }
 
 template <>
-void SparseMatrix<uchar>::printMatrix()
+ostream&  SparseMatrix<uchar>::printMatrix(ostream& stream)
 {
-    printMatrixInt();
+    return printMatrixInt(stream);
 }
 
 template <typename T>
@@ -367,6 +372,12 @@ template <typename T>
 bool SparseMatrix<T>::operator!=(SparseMatrix<T> &m1)
 {
     return !(*this == m1);
+}
+
+template <typename T>
+ostream& operator<<(ostream& stream, SparseMatrix<T>& matrix)
+{
+    return matrix.printMatrix(stream);
 }
 
 template <typename T>
