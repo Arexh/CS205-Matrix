@@ -16,10 +16,13 @@ const double SHIFT = 0.01;
 const double DATA_SCALE = 0.99;
 const double DATA_RANGE = 255.0;
 
-const int EPOCH = 10;
+const int EPOCH = 5;
 
-#define TRAIN_SET "datasets/mnist_train_100.csv"
-#define TEST_SET "datasets/mnist_test_10.csv"
+#define TRAIN_SET "datasets/mnist_train.csv"
+#define TEST_SET "datasets/mnist_test.csv"
+
+#define OOM_SCORE_ADJ_MIN   (-1000)
+#define OOM_SCORE_ADJ_MAX   1000
 
 pair<Matrix<double>*, Matrix<double>*>* readCSVFile(string filename)
 {
