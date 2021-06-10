@@ -16,18 +16,24 @@ using std::setw;
 #define EQ_THRESHOLD 1e-10
 
 template <typename T>
-struct Node {
+struct Node
+{
     int row;
     int col;
     T value;
 
     bool operator<(const Node<T> &a) const
     {
-        if (row < a.row) {
+        if (row < a.row)
+        {
             return true;
-        } else if (row > a.row) {
+        }
+        else if (row > a.row)
+        {
             return false;
-        } else {
+        }
+        else
+        {
             return col < a.col;
         }
     }
@@ -43,14 +49,15 @@ class SparseMatrix
 {
 private:
     vector<Node<T>> *data;
+
 public:
     int m_row;
     int m_col;
 
     SparseMatrix() : SparseMatrix(0, 0){};
     SparseMatrix(int row, int col);
-    SparseMatrix(int row, int col, const T* data);
-    SparseMatrix(const vector<vector<T>>& arr);
+    SparseMatrix(int row, int col, const T *data);
+    SparseMatrix(const vector<vector<T>> &arr);
     SparseMatrix(const SparseMatrix<T> &a);
 
     ~SparseMatrix();
@@ -67,28 +74,28 @@ public:
     template <typename U>
     friend SparseMatrix<U> operator+(SparseMatrix<U> l, SparseMatrix<U> r);
     template <typename U>
-    friend SparseMatrix<U> operator+(const U& l, SparseMatrix<U> r);
+    friend SparseMatrix<U> operator+(const U &l, SparseMatrix<U> r);
     template <typename U>
-    friend SparseMatrix<U> operator+(SparseMatrix<U> l, const U& r);
+    friend SparseMatrix<U> operator+(SparseMatrix<U> l, const U &r);
 
     template <typename U>
     friend SparseMatrix<U> operator-(SparseMatrix<U> l, SparseMatrix<U> r);
     template <typename U>
-    friend SparseMatrix<U> operator-(const U& l, SparseMatrix<U> r);
+    friend SparseMatrix<U> operator-(const U &l, SparseMatrix<U> r);
     template <typename U>
-    friend SparseMatrix<U> operator-(SparseMatrix<U> l, const U& r);
+    friend SparseMatrix<U> operator-(SparseMatrix<U> l, const U &r);
 
     template <typename U>
     friend SparseMatrix<U> operator*(SparseMatrix<U> l, SparseMatrix<U> r);
     template <typename U>
-    friend SparseMatrix<U> operator*(const U& l, SparseMatrix<U> r);
+    friend SparseMatrix<U> operator*(const U &l, SparseMatrix<U> r);
     template <typename U>
-    friend SparseMatrix<U> operator*(SparseMatrix<U> l, const U& r);
-    
+    friend SparseMatrix<U> operator*(SparseMatrix<U> l, const U &r);
+
     template <typename U>
-    friend SparseMatrix<U> operator/(const U& l, SparseMatrix<U> r);
+    friend SparseMatrix<U> operator/(const U &l, SparseMatrix<U> r);
     template <typename U>
-    friend SparseMatrix<U> operator/(SparseMatrix<U> l, const U& r);
+    friend SparseMatrix<U> operator/(SparseMatrix<U> l, const U &r);
     template <typename U>
     friend SparseMatrix<U> operator^(SparseMatrix<U> l, SparseMatrix<U> r);
 
@@ -97,8 +104,8 @@ public:
     SparseMatrix<T> operator+=(SparseMatrix<T> m1);
     SparseMatrix<T> operator-=(SparseMatrix<T> m1);
     SparseMatrix<T> operator*=(SparseMatrix<T> m1);
-    SparseMatrix<T> operator*=(const T& a);
-    SparseMatrix<T> operator/=(const T& a);
+    SparseMatrix<T> operator*=(const T &a);
+    SparseMatrix<T> operator/=(const T &a);
 
     SparseMatrix<T> conju();
 
@@ -147,11 +154,11 @@ public:
     bool isUpperTri();
     static bool isCloseEnough(T a, T b, double threshold = EQ_THRESHOLD);
     pair<T, SparseMatrix<T>> eigenValueAndEigenVector(int max_itr = 10e3);
-    T** toArray();
-    cv::Mat* toOpenCVMat(int type);
+    T **toArray();
+    cv::Mat *toOpenCVMat(int type);
 
     static SparseMatrix<T> fromOpenCV(const cv::Mat &cvMat);
-    static SparseMatrix<T> conv2D(SparseMatrix<T> &input, SparseMatrix<T> &kernel, int stride=1, bool same_padding=true);
+    static SparseMatrix<T> conv2D(SparseMatrix<T> &input, SparseMatrix<T> &kernel, int stride = 1, bool same_padding = true);
 
     void sort();
     void insert(int row, int col, T value);
@@ -159,23 +166,31 @@ public:
 
     // from: https://stackoverflow.com/questions/6969881/operator-overload
     template <typename U>
-    class Proxy {
+    class Proxy
+    {
     private:
         int row;
         vector<Node<U>> data;
         T zero;
+
     public:
-        Proxy(int r, vector<Node<U>> &d) {
+        Proxy(int r, vector<Node<U>> &d)
+        {
             this->row = r;
             this->data = d;
             this->zero = static_cast<T>(0);
         }
 
-        T& operator[](int col) {
-            for (int i = 0; i < data.size(); i++) {
-                if (data[i].row > row || (data[i].row == row && col < data[i].col)) {
+        T &operator[](int col)
+        {
+            for (int i = 0; i < data.size(); i++)
+            {
+                if (data[i].row > row || (data[i].row == row && col < data[i].col))
+                {
                     break;
-                } else if (data[i].row == row && data[i].col == col) {
+                }
+                else if (data[i].row == row && data[i].col == col)
+                {
                     return data[i].value;
                 }
             }
@@ -183,7 +198,8 @@ public:
         }
     };
 
-    Proxy<T> operator[](int row) {
+    Proxy<T> operator[](int row)
+    {
         sort();
         return Proxy<T>(row, *data);
     }
@@ -219,7 +235,7 @@ SparseMatrix<T>::SparseMatrix(int row, int col)
 }
 
 template <typename T>
-SparseMatrix<T>::SparseMatrix(const vector<vector<T>>& arr)
+SparseMatrix<T>::SparseMatrix(const vector<vector<T>> &arr)
 {
     int row = arr.size();
     int col = arr[0].size();
@@ -227,8 +243,10 @@ SparseMatrix<T>::SparseMatrix(const vector<vector<T>>& arr)
     m_col = col;
     data = new vector<Node<T>>();
     for (int i = 0; i < row; i++)
-        for (int j = 0; j < col; j++) {
-            if (arr[i][j] != static_cast<T>(0)) {
+        for (int j = 0; j < col; j++)
+        {
+            if (arr[i][j] != static_cast<T>(0))
+            {
                 Node<T> node = {i, j, arr[i][j]};
                 data->push_back(node);
             }
@@ -252,9 +270,11 @@ void SparseMatrix<T>::sort()
 template <typename T>
 void SparseMatrix<T>::remove(int row, int col)
 {
-    for(typename vector<Node<T>>::iterator it = (*data).begin(); it != (*data).end(); ++it) {
+    for (typename vector<Node<T>>::iterator it = (*data).begin(); it != (*data).end(); ++it)
+    {
         Node<T> node = *it;
-        if (node.row == row && node.col == col) {
+        if (node.row == row && node.col == col)
+        {
             (*data).erase(it);
             return;
         }
@@ -267,8 +287,10 @@ void SparseMatrix<T>::printMatrix()
     sort();
     printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
     int cnt = 0;
-    for (int i = 0; i < m_row; i++) {
-        for (int j = 0; j < m_col; j++) {
+    for (int i = 0; i < m_row; i++)
+    {
+        for (int j = 0; j < m_col; j++)
+        {
             if (cnt < (*data).size() && (*data)[cnt].row == i && (*data)[cnt].col == j)
                 cout << std::setw(7) << (*data)[cnt++].value << " ";
             else
@@ -285,10 +307,12 @@ void SparseMatrix<T>::printMatrixInt()
     sort();
     printf("\n---------row:%d,col:%d-----------\n", m_row, m_col);
     int cnt = 0;
-    for (int i = 0; i < m_row; i++) {
-        for (int j = 0; j < m_col; j++) {
+    for (int i = 0; i < m_row; i++)
+    {
+        for (int j = 0; j < m_col; j++)
+        {
             if (cnt < (*data).size() && (*data)[cnt].row == i && (*data)[cnt].col == j)
-                cout << std::setw(7) << ((int) (*data)[cnt++].value) << " ";
+                cout << std::setw(7) << ((int)(*data)[cnt++].value) << " ";
             else
                 cout << std::setw(7) << 0 << " ";
         }
@@ -312,13 +336,14 @@ void SparseMatrix<uchar>::printMatrix()
 template <typename T>
 SparseMatrix<T> SparseMatrix<T>::operator=(const SparseMatrix<T> &m1)
 {
-    if (this != &m1) {
+    if (this != &m1)
+    {
         m_row = m1.m_row;
         m_col = m1.m_col;
 
         if (data)
             delete data;
-        
+
         data = new vector<Node<T>>(*(m1.data));
     }
     return (*this);
@@ -359,36 +384,39 @@ bool SparseMatrix<T>::is_square() const
 template <typename T>
 bool SparseMatrix<T>::is_zero()
 {
-    return determinant() ==  static_cast<T>(0);
+    return determinant() == static_cast<T>(0);
 }
 
 template <typename T>
 void SparseMatrix<T>::insert(int row, int col, T value)
 {
-    if (value == static_cast<T>(0)) {
+    if (value == static_cast<T>(0))
+    {
         remove(row, col);
         return;
     }
-    for (int i = 0; i < (*data).size(); i++) {
+    for (int i = 0; i < (*data).size(); i++)
+    {
         Node<T> node = (*data)[i];
-        if (row == node.row && col == node.col) {
+        if (row == node.row && col == node.col)
+        {
             node.value = value;
             (*data)[i] = node;
             return;
         }
     }
-    (*data).push_back(Node<T> {row, col, value});
+    (*data).push_back(Node<T>{row, col, value});
 }
 
 template <typename T>
 SparseMatrix<T> SparseMatrix<T>::operator-()
 {
     SparseMatrix<T> result(m_row, m_col);
-    
+
     for (int i = 0; i < m_row; i++)
         for (int j = 0; j < m_col; j++)
             result.insert(i, j, -(*this)[i][j]);
-    
+
     return result;
 }
 
@@ -401,27 +429,35 @@ SparseMatrix<T> operator+(SparseMatrix<T> l, SparseMatrix<T> r)
     vector<Node<T>> listOne = *(l.data);
     vector<Node<T>> listTwo = *(r.data);
     int one = 0, two = 0;
-    while (one < listOne.size() && two < listTwo.size()) {
+    while (one < listOne.size() && two < listTwo.size())
+    {
         Node<T> nodeOne = listOne[one];
         Node<T> nodeTwo = listTwo[two];
-        if (nodeOne == nodeTwo) {
+        if (nodeOne == nodeTwo)
+        {
             result.insert(nodeOne.row, nodeOne.col, nodeOne.value + nodeTwo.value);
             one++;
             two++;
-        } else if (nodeOne < nodeTwo) {
+        }
+        else if (nodeOne < nodeTwo)
+        {
             result.insert(nodeOne.row, nodeOne.col, nodeOne.value);
             one++;
-        } else {
+        }
+        else
+        {
             result.insert(nodeTwo.row, nodeTwo.col, nodeTwo.value);
             two++;
         }
     }
-    while (one < listOne.size()) {
+    while (one < listOne.size())
+    {
         Node<T> nodeOne = listOne[one];
         result.insert(nodeOne.row, nodeOne.col, nodeOne.value);
         one++;
     }
-    while (two < listTwo.size()) {
+    while (two < listTwo.size())
+    {
         Node<T> nodeTwo = listTwo[two];
         result.insert(nodeTwo.row, nodeTwo.col, nodeTwo.value);
         two++;
@@ -430,7 +466,7 @@ SparseMatrix<T> operator+(SparseMatrix<T> l, SparseMatrix<T> r)
 }
 
 template <typename T>
-SparseMatrix<T> operator+(SparseMatrix<T> l, const T& r)
+SparseMatrix<T> operator+(SparseMatrix<T> l, const T &r)
 {
     SparseMatrix<T> result(l.m_row, l.m_col);
 
@@ -442,7 +478,7 @@ SparseMatrix<T> operator+(SparseMatrix<T> l, const T& r)
 }
 
 template <typename T>
-SparseMatrix<T> operator+(const T& l, SparseMatrix<T> r)
+SparseMatrix<T> operator+(const T &l, SparseMatrix<T> r)
 {
     return r + l;
 }
@@ -460,7 +496,7 @@ SparseMatrix<T> operator-(SparseMatrix<T> l, SparseMatrix<T> r)
 }
 
 template <typename T>
-SparseMatrix<T> operator-(SparseMatrix<T> l, const T& r)
+SparseMatrix<T> operator-(SparseMatrix<T> l, const T &r)
 {
     SparseMatrix<T> result(l);
 
@@ -472,7 +508,7 @@ SparseMatrix<T> operator-(SparseMatrix<T> l, const T& r)
 }
 
 template <typename T>
-SparseMatrix<T> operator-(const T& l, SparseMatrix<T> r)
+SparseMatrix<T> operator-(const T &l, SparseMatrix<T> r)
 {
     return r.SparseMatrix<T>::operator-() + l;
 }
@@ -483,7 +519,8 @@ SparseMatrix<T> operator*(SparseMatrix<T> l, SparseMatrix<T> r)
     SparseMatrix<T> result(l.m_row, r.m_col);
 
     for (int i = 0; i < result.m_row; i++)
-        for (int j = 0; j < result.m_col; j++) {
+        for (int j = 0; j < result.m_col; j++)
+        {
             T cumulativeSum = static_cast<T>(0);
             for (int k = 0; k < l.m_col; k++)
                 cumulativeSum += l[i][k] * r[k][j];
@@ -494,12 +531,13 @@ SparseMatrix<T> operator*(SparseMatrix<T> l, SparseMatrix<T> r)
 }
 
 template <typename T>
-SparseMatrix<T> operator*(SparseMatrix<T> l, const T& r)
+SparseMatrix<T> operator*(SparseMatrix<T> l, const T &r)
 {
     SparseMatrix<T> result(l.m_row, l.m_col);
 
     for (int i = 0; i < result.m_row; i++)
-        for (int j = 0; j < result.m_col; j++) {
+        for (int j = 0; j < result.m_col; j++)
+        {
             T value = l[i][j] * r;
             result.insert(i, j, value);
         }
@@ -508,13 +546,13 @@ SparseMatrix<T> operator*(SparseMatrix<T> l, const T& r)
 }
 
 template <typename T>
-SparseMatrix<T> operator*(const T& l, SparseMatrix<T> r)
+SparseMatrix<T> operator*(const T &l, SparseMatrix<T> r)
 {
     return r * l;
 }
 
 template <typename T>
-SparseMatrix<T> operator/(SparseMatrix<T> l, const T& r)
+SparseMatrix<T> operator/(SparseMatrix<T> l, const T &r)
 {
     SparseMatrix<T> result(l.m_row, l.m_col);
 
@@ -526,7 +564,7 @@ SparseMatrix<T> operator/(SparseMatrix<T> l, const T& r)
 }
 
 template <typename T>
-SparseMatrix<T> operator/(const T& l, SparseMatrix<T> r)
+SparseMatrix<T> operator/(const T &l, SparseMatrix<T> r)
 {
     SparseMatrix<T> result(r.m_row, r.m_col);
 
@@ -569,7 +607,7 @@ SparseMatrix<T> SparseMatrix<T>::operator*=(SparseMatrix<T> m1)
 }
 
 template <typename T>
-SparseMatrix<T> SparseMatrix<T>::operator*=(const T& m1)
+SparseMatrix<T> SparseMatrix<T>::operator*=(const T &m1)
 {
     for (int i = 0; i < m_row; i++)
         for (int j = 0; j < m_col; j++)
@@ -579,7 +617,7 @@ SparseMatrix<T> SparseMatrix<T>::operator*=(const T& m1)
 }
 
 template <typename T>
-SparseMatrix<T> SparseMatrix<T>::operator/=(const T& a)
+SparseMatrix<T> SparseMatrix<T>::operator/=(const T &a)
 {
     for (int i = 0; i < m_row; i++)
         for (int j = 0; j < m_col; j++)
@@ -640,7 +678,7 @@ SparseMatrix<T> SparseMatrix<T>::Transposition()
 // SparseMatrix<T> SparseMatrix<T>::toTransposition()
 // {
 //     // SparseMatrix<T> result = Transposition();
-    
+
 //     // for (int i = 0; i < m_row; i++)
 //     //     for (int j = 0; j < m_col; j++)
 //     //         (*data)[i][j] = result[i][j];
@@ -990,10 +1028,11 @@ T SparseMatrix<T>::max()
     int k = 0, m = 0, i, j;
     for (i = 0; i < this->m_row; i++)
         for (j = 0; j < this->m_col; j++)
-            if ((*this)[i][j] > (*this)[k][m]) {
+            if ((*this)[i][j] > (*this)[k][m])
+            {
                 k = i;
                 m = j;
-            }   
+            }
 
     return (*this)[k][m];
 }
@@ -1378,13 +1417,17 @@ SparseMatrix<T> SparseMatrix<T>::fromOpenCV(const cv::Mat &cvMat)
 }
 
 template <typename T>
-T** SparseMatrix<T>::toArray() {
-    T** array = new T*[m_row];
-    for (int i = 0; i < m_row; i++) {
+T **SparseMatrix<T>::toArray()
+{
+    T **array = new T *[m_row];
+    for (int i = 0; i < m_row; i++)
+    {
         array[i] = new T[m_col];
     }
-    for (int i = 0; i < m_row; i++) {
-        for (int j = 0; j < m_col; j++) {
+    for (int i = 0; i < m_row; i++)
+    {
+        for (int j = 0; j < m_col; j++)
+        {
             array[i][j] = (*this)[i][j];
         }
     }
@@ -1392,10 +1435,13 @@ T** SparseMatrix<T>::toArray() {
 }
 
 template <typename T>
-cv::Mat* SparseMatrix<T>::toOpenCVMat(int type) {
-    cv::Mat* cvMat = new cv::Mat(m_row, m_col, type);
-    for (int i = 0; i < m_row; i++) {
-        for (int j = 0; j < m_col; j++) {
+cv::Mat *SparseMatrix<T>::toOpenCVMat(int type)
+{
+    cv::Mat *cvMat = new cv::Mat(m_row, m_col, type);
+    for (int i = 0; i < m_row; i++)
+    {
+        for (int j = 0; j < m_col; j++)
+        {
             (*cvMat).at<T>(i, j) = (*this)[i][j];
         }
     }
@@ -1403,24 +1449,31 @@ cv::Mat* SparseMatrix<T>::toOpenCVMat(int type) {
 }
 
 template <typename T>
-SparseMatrix<T> SparseMatrix<T>::conv2D(SparseMatrix<T> &input, SparseMatrix<T> &kernel, int stride, bool same_padding) {
+SparseMatrix<T> SparseMatrix<T>::conv2D(SparseMatrix<T> &input, SparseMatrix<T> &kernel, int stride, bool same_padding)
+{
     SparseMatrix<T> inputSparseMatrix;
     int padding = 0;
-    if (same_padding) {
+    if (same_padding)
+    {
         padding = 1;
     }
     inputSparseMatrix = SparseMatrix<T>(input.m_row + padding * 2, input.m_col + padding * 2);
-    for (int i = 0; i < input.m_row; i++) {
-        for (int j = 0; j < input.m_col; j++) {
+    for (int i = 0; i < input.m_row; i++)
+    {
+        for (int j = 0; j < input.m_col; j++)
+        {
             inputSparseMatrix.insert(i + padding, j + padding, input[i][j]);
         }
     }
-    if (padding == 1) {
-        for (int i = 0; i < inputSparseMatrix.m_row; i++) {
+    if (padding == 1)
+    {
+        for (int i = 0; i < inputSparseMatrix.m_row; i++)
+        {
             inputSparseMatrix.remove(i, 0);
             inputSparseMatrix.remove(i, inputSparseMatrix.m_col - 1);
         }
-        for (int i = 0; i < inputSparseMatrix.m_col; i++) {
+        for (int i = 0; i < inputSparseMatrix.m_col; i++)
+        {
             inputSparseMatrix.remove(0, i);
             inputSparseMatrix.remove(inputSparseMatrix.m_row - 1, i);
         }
@@ -1428,11 +1481,15 @@ SparseMatrix<T> SparseMatrix<T>::conv2D(SparseMatrix<T> &input, SparseMatrix<T> 
     int rowDim = ((input.m_row + 2 * padding - kernel.m_row) / stride) + 1;
     int colDim = ((input.m_col + 2 * padding - kernel.m_col) / stride) + 1;
     SparseMatrix<T> result(rowDim, colDim);
-    for (int i = 0; i < rowDim; i++) {
-        for (int j = 0; j < colDim; j++) {
+    for (int i = 0; i < rowDim; i++)
+    {
+        for (int j = 0; j < colDim; j++)
+        {
             T cumulativeSum = static_cast<T>(0);
-            for (int x = 0; x < kernel.m_row; x++) {
-                for (int y = 0; y < kernel.m_col; y++) {
+            for (int x = 0; x < kernel.m_row; x++)
+            {
+                for (int y = 0; y < kernel.m_col; y++)
+                {
                     cumulativeSum += kernel[x][y] * inputSparseMatrix[x + i * stride][y + j * stride];
                 }
             }
