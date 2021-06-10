@@ -706,8 +706,8 @@ T SparseMatrix<T>::determinant()
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int length = m_col, now = 0;
     T d;
@@ -790,8 +790,8 @@ SparseMatrix<T> SparseMatrix<T>::LU_factor_U()
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int n = m_col;
     T sum;
@@ -839,8 +839,8 @@ SparseMatrix<T> SparseMatrix<T>::LU_factor_L()
             }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int n = m_col;
     T sum;
@@ -895,8 +895,8 @@ SparseMatrix<T> SparseMatrix<T>::LDU_factor_D()
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     SparseMatrix<T> tmp(this->LU_factor_U());
     SparseMatrix<T> d(this->m_row, this->m_col);
@@ -915,8 +915,8 @@ SparseMatrix<T> SparseMatrix<T>::LDU_factor_U()
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     SparseMatrix<T> u(this->LU_factor_U());
     SparseMatrix<T> a(u);
@@ -937,8 +937,8 @@ SparseMatrix<T> SparseMatrix<T>::Inverse()
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T tmp1;
     tmp1 = 0;
@@ -1120,8 +1120,8 @@ T SparseMatrix<T>::row_max(int row)
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
@@ -1140,8 +1140,8 @@ T SparseMatrix<T>::row_min(int row)
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
@@ -1160,8 +1160,8 @@ T SparseMatrix<T>::row_sum(int row)
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T row_sum;
     row_sum = 0;
@@ -1181,8 +1181,8 @@ T SparseMatrix<T>::row_mean(int row)
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T total;
     total = (this->m_col);
@@ -1198,8 +1198,8 @@ T SparseMatrix<T>::col_max(int col)
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
@@ -1218,8 +1218,8 @@ T SparseMatrix<T>::col_min(int col)
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
@@ -1238,8 +1238,8 @@ T SparseMatrix<T>::col_sum(int col)
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T col_sum;
     col_sum = 0;
@@ -1259,8 +1259,8 @@ T SparseMatrix<T>::col_mean(int col)
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T total;
     total = this->m_row;

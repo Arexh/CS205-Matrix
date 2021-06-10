@@ -84,7 +84,7 @@ public:
 
     Matrix<T> conju();
 
-    Matrix<T> & dot(const Matrix<T> &m1) const;
+    Matrix<T> dot(const Matrix<T> &m1) const;
     Matrix<T> cross(const Matrix<T> &m1) const;
     Matrix<T> Transposition() const;
     Matrix<T> toTransposition();
@@ -152,7 +152,7 @@ template <typename T>
 Matrix<T>::Matrix(int row, int col)
 {
     try {
-        if (row <= 0 || col <= 0) {
+        if (row < 0 || col < 0) {
            throw new Exception("You input negative row/col num");
         } else {
             m_row = row;
@@ -537,7 +537,7 @@ Matrix<T> Matrix<T>::conju()
 }
 
 template <typename T>
-Matrix<T> & Matrix<T>::dot(const Matrix<T> &m1) const
+Matrix<T> Matrix<T>::dot(const Matrix<T> &m1) const
 {
     return (*this) ^ m1;
 }
@@ -656,8 +656,8 @@ Matrix<T> Matrix<T>::LU_factor_U() const
             throw new InvalidDimensionsException("the matrix's column is not equal to the matrix's row");
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
 
     int n = m_col;
@@ -706,8 +706,8 @@ Matrix<T> Matrix<T>::LU_factor_L() const
             throw new InvalidDimensionsException("the matrix's column is not equal to the matrix's row");
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     //需要判断行列式是否为0
     int n = m_col;
@@ -763,8 +763,8 @@ Matrix<T> Matrix<T>::LDU_factor_D() const
             throw new InvalidDimensionsException("the matrix's column is not equal to the matrix's row");
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     Matrix<T> tmp(this->LU_factor_U());
     Matrix<T> d(this->m_row, this->m_col);
@@ -784,8 +784,8 @@ Matrix<T> Matrix<T>::LDU_factor_U() const
             throw new InvalidDimensionsException("the matrix's column is not equal to the matrix's row");
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     Matrix<T> u(this->LU_factor_U());
     for (int i = 0; i < m_row; i++)
@@ -807,8 +807,8 @@ Matrix<T> Matrix<T>::Inverse() const
             throw new InvalidDimensionsException("the matrix is not a square");
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T tmp1;
     tmp1 = 0;
@@ -999,8 +999,8 @@ T Matrix<T>::row_max(int row) const
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
@@ -1020,8 +1020,8 @@ T Matrix<T>::row_min(int row) const
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
@@ -1040,8 +1040,8 @@ T Matrix<T>::row_sum(int row) const
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T row_sum;
     row_sum = 0;
@@ -1061,8 +1061,8 @@ T Matrix<T>::row_mean(int row) const
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T total;
     total = (this->m_col);
@@ -1078,8 +1078,8 @@ T Matrix<T>::col_max(int col) const
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
@@ -1098,8 +1098,8 @@ T Matrix<T>::col_min(int col) const
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
@@ -1118,8 +1118,8 @@ T Matrix<T>::col_sum(int col) const
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T col_sum;
     col_sum = 0;
@@ -1139,8 +1139,8 @@ T Matrix<T>::col_mean(int col) const
         }
     }
     catch(Exception e){
-        e.what();
-        exit();
+        // e.what();
+        // exit();
     }
     T total;
     total = this->m_row;
