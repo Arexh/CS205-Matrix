@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _MATRIX_H_
+#define _MATRIX_H_
+
 #include <opencv2/opencv.hpp>
 #include <stdio.h>
 #include <vector>
@@ -132,6 +134,9 @@ public:
     T** toArray();
     cv::Mat* toOpenCVMat(int type);
 
+    Matrix<T> transform(T (*f) (T));
+    void printShape();
+
     static Matrix<T> fromOpenCV(const cv::Mat &cvMat);
     static Matrix<T> conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int stride=1, bool same_padding=true);
 
@@ -249,17 +254,17 @@ ostream& Matrix<T>::printMatrixInt(ostream& stream) const
     return stream;
 }
 
-template <>
-ostream& Matrix<char>::printMatrix(ostream& stream) const
-{
-    return printMatrixInt(stream);
-}
+// template <>
+// ostream& Matrix<char>::printMatrix(ostream& stream) const
+// {
+//     return printMatrixInt(stream);
+// }
 
-template <>
-ostream& Matrix<uchar>::printMatrix(ostream& stream) const
-{
-    return printMatrixInt(stream);
-}
+// template <>
+// ostream& Matrix<uchar>::printMatrix(ostream& stream) const
+// {
+//     return printMatrixInt(stream);
+// }
 
 template <typename T>
 vector<T>& Matrix<T>::operator[](int idx) const
@@ -1278,17 +1283,17 @@ bool Matrix<T>::isCloseEnough(T a, T b, double threshold)
     return abs(a - b) < static_cast<T>(threshold);
 }
 
-template <>
-bool Matrix<uchar>::isCloseEnough(uchar a, uchar b, double threshold)
-{
-    return a == b;
-}
+// template <>
+// bool Matrix<uchar>::isCloseEnough(uchar a, uchar b, double threshold)
+// {
+//     return a == b;
+// }
 
-template <>
-bool Matrix<char>::isCloseEnough(char a, char b, double threshold)
-{
-    return a == b;
-}
+// template <>
+// bool Matrix<char>::isCloseEnough(char a, char b, double threshold)
+// {
+//     return a == b;
+// }
 
 
 template <typename T>
@@ -1478,3 +1483,23 @@ Matrix<T> Matrix<T>::conv2D(const Matrix<T> &input, const Matrix<T> &kernel, int
     }
     return result;
 }
+
+template <typename T>
+Matrix<T> Matrix<T>::transform(T (*f) (T))
+{
+    Matrix<T> result(m_row, m_col);
+
+    for (int i = 0; i < m_row; i++)
+        for (int j = 0; j < m_col; j++)
+            result[i][j] = (*f)((*this)[i][j]);
+
+    return result;
+}
+
+template <typename T>
+void Matrix<T>::printShape()
+{
+    cout << "Row: " << m_row << ", Col: " << m_col << endl;
+}
+
+#endif

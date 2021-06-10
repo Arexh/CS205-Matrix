@@ -23,13 +23,13 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${GTEST_INCLUDE_DIRS})
 
 aux_source_directory(./src DIR_SRCS)
+aux_source_directory(./include DIR_INCLUDES)
 
 include_directories(include)
 
-add_executable(main 
+add_executable(main
+  ${DIR_INCLUDES}
   ${DIR_SRCS}
-  include/Matrix.h
-  include/SparseMatrix.h
 )
 
 target_link_libraries(main ${OpenCV_LIBS})
@@ -41,9 +41,8 @@ aux_source_directory(./test DIR_TESTS)
 
 add_executable(
   ${TestModule}
+  ${DIR_INCLUDES}
   ${DIR_TESTS}
-  include/Matrix.h
-  include/SparseMatrix.h
 )
 target_link_libraries(
   ${TestModule}
