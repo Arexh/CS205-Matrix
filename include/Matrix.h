@@ -9,7 +9,7 @@
 #include <complex>
 #include <typeinfo>
 #include <random>
-
+#include "exception.h"
 using namespace std;
 using std::setw;
 
@@ -151,24 +151,25 @@ Matrix<T>::~Matrix()
 template <typename T>
 Matrix<T>::Matrix(int row, int col)
 {
-    if (row <= 0 || col <= 0)
-    {
-        cout << "You input negative row/col num" << endl;
+    try {
+        if (row <= 0 || col <= 0) {
+           throw new Exception("You input negative row/col num");
+        } else {
+            m_row = row;
+            m_col = col;
+            data = new vector<vector<T>>();
+            data->resize(row);
+            typename vector<vector<T>>::iterator iter;
+            for (iter = data->begin(); iter < data->end(); iter++) {
+                iter->resize(col);
+            }
+        }
+    }
+    catch (Exception& e) {
+        e.what();
         m_row = 0;
         m_col = 0;
         data = nullptr;
-    }
-    else
-    {
-        m_row = row;
-        m_col = col;
-        data = new vector<vector<T>>();
-        data->resize(row);
-        typename vector<vector<T>>::iterator iter;
-        for (iter = data->begin(); iter < data->end(); iter++)
-        {
-            iter->resize(col);
-        }
     }
 }
 
@@ -650,7 +651,15 @@ T Matrix<T>::trace() const
 template <typename T>
 Matrix<T> Matrix<T>::LU_factor_U() const
 {
-    assert(m_col == m_row);
+    try{
+        if(m_col != m_row)
+            throw new InvalidDimensionsException("the matrix's column is not equal to the matrix's row");
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
+
     int n = m_col;
     T sum;
     sum = 0;
@@ -691,7 +700,15 @@ Matrix<T> Matrix<T>::LU_factor_U() const
 template <typename T>
 Matrix<T> Matrix<T>::LU_factor_L() const
 {
-    assert(m_col == m_row);
+
+    try{
+        if(m_col != m_row)
+            throw new InvalidDimensionsException("the matrix's column is not equal to the matrix's row");
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     //需要判断行列式是否为0
     int n = m_col;
     T sum;
@@ -740,7 +757,15 @@ Matrix<T> Matrix<T>::LDU_factor_L() const
 template <typename T>
 Matrix<T> Matrix<T>::LDU_factor_D() const
 {
-    assert(this->m_row == this->m_col);
+
+    try{
+        if(this->m_col != this->m_row)
+            throw new InvalidDimensionsException("the matrix's column is not equal to the matrix's row");
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     Matrix<T> tmp(this->LU_factor_U());
     Matrix<T> d(this->m_row, this->m_col);
     for (int i = 0; i < m_row; i++)
@@ -753,7 +778,15 @@ Matrix<T> Matrix<T>::LDU_factor_D() const
 template <typename T>
 Matrix<T> Matrix<T>::LDU_factor_U() const
 {
-    assert(this->m_row == this->m_col);
+
+    try{
+        if(this->m_col != this->m_row)
+            throw new InvalidDimensionsException("the matrix's column is not equal to the matrix's row");
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     Matrix<T> u(this->LU_factor_U());
     for (int i = 0; i < m_row; i++)
     {
@@ -769,7 +802,14 @@ template <typename T>
 Matrix<T> Matrix<T>::Inverse() const
 {
     T deter = this->determinant();
-    assert(this->is_square());
+    try{
+        if(!this->is_square())
+            throw new InvalidDimensionsException("the matrix is not a square");
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T tmp1;
     tmp1 = 0;
     assert(deter != tmp1);
@@ -809,29 +849,28 @@ Matrix<T> Matrix<T>::Inverse() const
 template <typename T>
 Matrix<T> Matrix<T>::reshape(int r, int c) const
 {
-    if (this->m_row * this->m_col != r * c)
-    {
-        //cout << "ReshapeError:Not The Same Szie" << __FILE__ << __LINE__ << end;
-        return (*this);
-    }
-    else
-    {
-        Matrix<T> ans(r, c);
-        int i, j, x = 0, y = 0;
-        for (i = 0; i < this->m_row; i++)
-        {
-            for (j = 0; j < this->m_col; j++)
-            {
-                ans[x][y] = (*data)[i][j];
-                y++;
-                if (y == c)
-                {
-                    x++;
-                    y = 0;
+    try {
+        if (this->m_row * this->m_col != r * c) {
+            throw new Exception("ReshapeError:Not The Same Size");
+        } else {
+            Matrix<T> ans(r, c);
+            int i, j, x = 0, y = 0;
+            for (i = 0; i < this->m_row; i++) {
+                for (j = 0; j < this->m_col; j++) {
+                    ans[x][y] = (*data)[i][j];
+                    y++;
+                    if (y == c) {
+                        x++;
+                        y = 0;
+                    }
                 }
             }
+            return ans;
         }
-        return ans;
+    }
+    catch(Exception e){
+        e.what();
+        return (*this);
     }
 }
 
@@ -954,7 +993,15 @@ T Matrix<T>::min() const
 template <typename T>
 T Matrix<T>::row_max(int row) const
 {
-    assert(row >= 0 && row < this->m_row);
+    try{
+        if(!(row >= 0 && row < this->m_row)){
+            throw new InvalidCoordinatesException("the range of row is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
     {
@@ -967,7 +1014,15 @@ T Matrix<T>::row_max(int row) const
 template <typename T>
 T Matrix<T>::row_min(int row) const
 {
-    assert(row >= 0 && row < this->m_row);
+    try{
+        if(!(row >= 0 && row < this->m_row)){
+            throw new InvalidCoordinatesException("the range of row is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
         if ((*data)[row][k] > (*data)[row][i])
@@ -979,7 +1034,15 @@ T Matrix<T>::row_min(int row) const
 template <typename T>
 T Matrix<T>::row_sum(int row) const
 {
-    assert(row >= 0 && row < this->m_row);
+    try{
+        if(!(row >= 0 && row < this->m_row)){
+            throw new InvalidCoordinatesException("the range of row is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T row_sum;
     row_sum = 0;
     for (int i = 0; i < this->m_col; i++)
@@ -992,7 +1055,15 @@ T Matrix<T>::row_sum(int row) const
 template <typename T>
 T Matrix<T>::row_mean(int row) const
 {
-    assert(row >= 0 && row < this->m_row);
+    try{
+        if(!(row >= 0 && row < this->m_row)){
+            throw new InvalidCoordinatesException("the range of row is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T total;
     total = (this->m_col);
     return this->row_sum(row) / total;
@@ -1001,7 +1072,15 @@ T Matrix<T>::row_mean(int row) const
 template <typename T>
 T Matrix<T>::col_max(int col) const
 {
-    assert(col >= 0 && col < this->m_col);
+    try{
+        if(!(col >= 0 && col < this->m_col)){
+            throw new InvalidCoordinatesException("the range of column is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
         if ((*data)[k][col] < (*data)[i][col])
@@ -1013,7 +1092,15 @@ T Matrix<T>::col_max(int col) const
 template <typename T>
 T Matrix<T>::col_min(int col) const
 {
-    assert(col >= 0 && col < this->m_col);
+    try{
+        if(!(col >= 0 && col < this->m_col)){
+            throw new InvalidCoordinatesException("the range of column is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
         if ((*data)[k][col] > (*data)[i][col])
@@ -1025,7 +1112,15 @@ T Matrix<T>::col_min(int col) const
 template <typename T>
 T Matrix<T>::col_sum(int col) const
 {
-    assert(col >= 0 && col < this->m_col);
+    try{
+        if(!(col >= 0 && col < this->m_col)){
+            throw new InvalidCoordinatesException("the range of column is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T col_sum;
     col_sum = 0;
     for (int i = 0; i < this->m_row; i++)
@@ -1038,7 +1133,15 @@ T Matrix<T>::col_sum(int col) const
 template <typename T>
 T Matrix<T>::col_mean(int col) const
 {
-    assert(col >= 0 && col < this->m_col);
+    try{
+        if(!(col >= 0 && col < this->m_col)){
+            throw new InvalidCoordinatesException("the range of column is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T total;
     total = this->m_row;
     return this->col_sum(col) / total;

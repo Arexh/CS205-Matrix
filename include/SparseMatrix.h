@@ -9,7 +9,7 @@
 #include <typeinfo>
 #include <random>
 #include <algorithm>
-
+#include "exception.h"
 using namespace std;
 using std::setw;
 
@@ -700,7 +700,15 @@ SparseMatrix<T> SparseMatrix<T>::Transposition()
 template <typename T>
 T SparseMatrix<T>::determinant()
 {
-    assert(m_col == m_row);
+    try{
+        if(m_row != m_col){
+            throw new InvalidDimensionsException("the row and column is not equal");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int length = m_col, now = 0;
     T d;
     d = 0;
@@ -776,7 +784,15 @@ T SparseMatrix<T>::trace()
 template <typename T>
 SparseMatrix<T> SparseMatrix<T>::LU_factor_U()
 {
-    assert(m_col == m_row);
+    try{
+        if(m_row != m_col){
+            throw new InvalidDimensionsException("the row and column is not equal");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int n = m_col;
     T sum;
     sum = 0;
@@ -817,7 +833,15 @@ SparseMatrix<T> SparseMatrix<T>::LU_factor_U()
 template <typename T>
 SparseMatrix<T> SparseMatrix<T>::LU_factor_L()
 {
-    assert(m_col == m_row);
+    try{
+        if(m_row != m_col){
+                throw new InvalidDimensionsException("the row and column is not equal");
+            }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int n = m_col;
     T sum;
     sum = 0;
@@ -865,7 +889,15 @@ SparseMatrix<T> SparseMatrix<T>::LDU_factor_L()
 template <typename T>
 SparseMatrix<T> SparseMatrix<T>::LDU_factor_D()
 {
-    assert(this->m_row == this->m_col);
+    try{
+        if(this->m_row != this->m_col){
+            throw new InvalidDimensionsException("the row and column is not equal");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     SparseMatrix<T> tmp(this->LU_factor_U());
     SparseMatrix<T> d(this->m_row, this->m_col);
     for (int i = 0; i < m_row; i++)
@@ -877,7 +909,15 @@ SparseMatrix<T> SparseMatrix<T>::LDU_factor_D()
 template <typename T>
 SparseMatrix<T> SparseMatrix<T>::LDU_factor_U()
 {
-    assert(this->m_row == this->m_col);
+    try{
+        if(this->m_row != this->m_col){
+            throw new InvalidDimensionsException("the row and column is not equal");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     SparseMatrix<T> u(this->LU_factor_U());
     SparseMatrix<T> a(u);
     for (int i = 0; i < m_row; i++)
@@ -891,7 +931,15 @@ template <typename T>
 SparseMatrix<T> SparseMatrix<T>::Inverse()
 {
     T deter = this->determinant();
-    assert(this->is_square());
+    try{
+        if(!(this -> is_square())){
+            throw new Exception("the matrix is not a square");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T tmp1;
     tmp1 = 0;
     assert(deter != tmp1);
@@ -1066,7 +1114,15 @@ T SparseMatrix<T>::min()
 template <typename T>
 T SparseMatrix<T>::row_max(int row)
 {
-    assert(row >= 0 && row < this->m_row);
+    try{
+        if(!(row >= 0 && row < this->m_row)){
+            throw new InvalidCoordinatesException("the range of row is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
         if ((*this)[row][k] < (*this)[row][i])
@@ -1078,7 +1134,15 @@ T SparseMatrix<T>::row_max(int row)
 template <typename T>
 T SparseMatrix<T>::row_min(int row)
 {
-    assert(row >= 0 && row < this->m_row);
+    try{
+        if(!(row >= 0 && row < this->m_row)){
+            throw new InvalidCoordinatesException("the range of row is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int k = 0;
     for (int i = 0; i < this->m_col; i++)
         if ((*this)[row][k] > (*this)[row][i])
@@ -1090,7 +1154,15 @@ T SparseMatrix<T>::row_min(int row)
 template <typename T>
 T SparseMatrix<T>::row_sum(int row)
 {
-    assert(row >= 0 && row < this->m_row);
+    try{
+        if(!(row >= 0 && row < this->m_row)){
+            throw new InvalidCoordinatesException("the range of row is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T row_sum;
     row_sum = 0;
     for (int i = 0; i < this->m_col; i++)
@@ -1103,7 +1175,15 @@ T SparseMatrix<T>::row_sum(int row)
 template <typename T>
 T SparseMatrix<T>::row_mean(int row)
 {
-    assert(row >= 0 && row < this->m_row);
+    try{
+        if(!(row >= 0 && row < this->m_row)){
+            throw new InvalidCoordinatesException("the range of row is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T total;
     total = (this->m_col);
     return this->row_sum(row) / total;
@@ -1112,7 +1192,15 @@ T SparseMatrix<T>::row_mean(int row)
 template <typename T>
 T SparseMatrix<T>::col_max(int col)
 {
-    assert(col >= 0 && col < this->m_col);
+    try{
+        if(!(col >= 0 && col < this->m_col)){
+            throw new InvalidCoordinatesException("the range of column is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
         if ((*this)[k][col] < (*this)[i][col])
@@ -1124,7 +1212,15 @@ T SparseMatrix<T>::col_max(int col)
 template <typename T>
 T SparseMatrix<T>::col_min(int col)
 {
-    assert(col >= 0 && col < this->m_col);
+    try{
+        if(!(col >= 0 && col < this->m_col)){
+            throw new InvalidCoordinatesException("the range of column is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     int k = 0;
     for (int i = 0; i < this->m_row; i++)
         if ((*this)[k][col] > (*this)[i][col])
@@ -1136,7 +1232,15 @@ T SparseMatrix<T>::col_min(int col)
 template <typename T>
 T SparseMatrix<T>::col_sum(int col)
 {
-    assert(col >= 0 && col < this->m_col);
+    try{
+        if(!(col >= 0 && col < this->m_col)){
+            throw new InvalidCoordinatesException("the range of column is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T col_sum;
     col_sum = 0;
     for (int i = 0; i < this->m_row; i++)
@@ -1149,7 +1253,15 @@ T SparseMatrix<T>::col_sum(int col)
 template <typename T>
 T SparseMatrix<T>::col_mean(int col)
 {
-    assert(col >= 0 && col < this->m_col);
+    try{
+        if(!(col >= 0 && col < this->m_col)){
+            throw new InvalidCoordinatesException("the range of column is error");
+        }
+    }
+    catch(Exception e){
+        e.what();
+        exit();
+    }
     T total;
     total = this->m_row;
     return this->col_sum(col) / total;
